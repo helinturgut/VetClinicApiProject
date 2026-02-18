@@ -1,0 +1,55 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+out/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+
+# Rider / ReSharper
+.idea/
+_ReSharper*/
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+!**/packages/build/
+
+# Logs
+*.log
+logs/
+
+# Test results
+TestResults/
+*.trx
+
+# Publish artifacts
+publish/
+
+# Entity Framework / local DB files
+*.db
+*.db-shm
+*.db-wal
+
+# ASP.NET Core and tooling
+wwwroot/lib/
+
+# User secrets and local env overrides
+secrets.json
+appsettings.Development.json
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
