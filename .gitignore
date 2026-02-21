@@ -1,7 +1,7 @@
-# Build output
-[Bb]in/
-[Oo]bj/
-out/
+# Build output (all projects)
+**/[Bb]in/
+**/[Oo]bj/
+**/out/
 
 # User-specific files
 *.user
@@ -28,6 +28,8 @@ packages/
 # Logs
 *.log
 logs/
+*.tmp
+*.cache
 
 # Test results
 TestResults/
@@ -35,6 +37,7 @@ TestResults/
 
 # Publish artifacts
 publish/
+artifacts/
 
 # Entity Framework / local DB files
 *.db
@@ -43,6 +46,7 @@ publish/
 
 # ASP.NET Core and tooling
 wwwroot/lib/
+*.http
 
 # User secrets and local env overrides
 secrets.json
