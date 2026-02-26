@@ -6,6 +6,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using VetClinicAPIProject.Data;
 using VetClinicAPIProject.Models;
+using VetClinicAPIProject.Repositories.Implementations;
+using VetClinicAPIProject.Repositories.Interfaces;
+using VetClinicAPIProject.Services.Implementations;
+using VetClinicAPIProject.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,7 +104,21 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOwnerService, OwnerService>();
+builder.Services.AddScoped<IPetService, PetService>();
+builder.Services.AddScoped<IVisitService, VisitService>();
+builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
+builder.Services.AddScoped<ITreatmentService, TreatmentService>();
+builder.Services.AddScoped<IOwnerRepository, OwnerRepository>();
+builder.Services.AddScoped<IPetRepository, PetRepository>();
+builder.Services.AddScoped<IVisitRepository, VisitRepository>();
+builder.Services.AddScoped<IDiagnosisRepository, DiagnosisRepository>();
+builder.Services.AddScoped<ITreatmentRepository, TreatmentRepository>();
+
 var app = builder.Build();
+
+await SeedData.SeedRolesAsync(app.Services);
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -115,4 +133,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
