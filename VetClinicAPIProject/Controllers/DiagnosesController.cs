@@ -11,12 +11,10 @@ namespace VetClinicAPIProject.Controllers;
 public class DiagnosesController : ControllerBase
 {
     private readonly IDiagnosisService _diagnosisService;
-    private readonly ILogger<DiagnosesController> _logger;
 
-    public DiagnosesController(IDiagnosisService diagnosisService, ILogger<DiagnosesController> logger)
+    public DiagnosesController(IDiagnosisService diagnosisService)
     {
         _diagnosisService = diagnosisService;
-        _logger = logger;
     }
 
     [HttpGet]
@@ -24,16 +22,8 @@ public class DiagnosesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<DiagnosisDto>>> GetDiagnosesByVisitId([FromRoute] int visitId)
     {
-        try
-        {
-            var diagnoses = await _diagnosisService.GetDiagnosesByVisitIdAsync(visitId);
-            return Ok(diagnoses);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Diagnosis lookup failed for visit ID {VisitId}", visitId);
-            return NotFound(ex.Message);
-        }
+        var diagnoses = await _diagnosisService.GetDiagnosesByVisitIdAsync(visitId);
+        return Ok(diagnoses);
     }
 
     [HttpPost]
@@ -42,20 +32,7 @@ public class DiagnosesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DiagnosisDto>> CreateDiagnosis([FromRoute] int visitId, [FromBody] CreateDiagnosisDto dto)
     {
-        try
-        {
-            var createdDiagnosis = await _diagnosisService.CreateDiagnosisAsync(visitId, dto);
-            return CreatedAtAction(nameof(GetDiagnosesByVisitId), new { visitId }, createdDiagnosis);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Diagnosis creation failed for visit ID {VisitId}", visitId);
-            return NotFound(ex.Message);
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Diagnosis creation could not be completed for visit ID {VisitId}", visitId);
-            return BadRequest(ex.Message);
-        }
+        var createdDiagnosis = await _diagnosisService.CreateDiagnosisAsync(visitId, dto);
+        return CreatedAtAction(nameof(GetDiagnosesByVisitId), new { visitId }, createdDiagnosis);
     }
 }

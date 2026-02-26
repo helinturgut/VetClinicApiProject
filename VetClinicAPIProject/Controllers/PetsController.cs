@@ -32,16 +32,8 @@ public class PetsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PetDto>> GetPetById(int id)
     {
-        try
-        {
-            var pet = await _petService.GetPetByIdAsync(id);
-            return Ok(pet);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Pet lookup failed for ID {PetId}", id);
-            return NotFound(ex.Message);
-        }
+        var pet = await _petService.GetPetByIdAsync(id);
+        return Ok(pet);
     }
 
     [HttpGet("{id:int}/history")]
@@ -49,16 +41,8 @@ public class PetsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PetDetailsDto>> GetPetHistory(int id)
     {
-        try
-        {
-            var petHistory = await _petService.GetPetHistoryAsync(id);
-            return Ok(petHistory);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Pet history lookup failed for ID {PetId}", id);
-            return NotFound(ex.Message);
-        }
+        var petHistory = await _petService.GetPetHistoryAsync(id);
+        return Ok(petHistory);
     }
 
     [HttpPost]
@@ -67,21 +51,8 @@ public class PetsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PetDto>> CreatePet([FromBody] CreatePetDto dto)
     {
-        try
-        {
-            var createdPet = await _petService.CreatePetAsync(dto);
-            return CreatedAtAction(nameof(GetPetById), new { id = createdPet.PetId }, createdPet);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Pet creation failed due to missing dependency");
-            return NotFound(ex.Message);
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Pet creation could not be completed");
-            return BadRequest(ex.Message);
-        }
+        var createdPet = await _petService.CreatePetAsync(dto);
+        return CreatedAtAction(nameof(GetPetById), new { id = createdPet.PetId }, createdPet);
     }
 
     [HttpPut("{id:int}")]
@@ -90,21 +61,8 @@ public class PetsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PetDto>> UpdatePet(int id, [FromBody] UpdatePetDto dto)
     {
-        try
-        {
-            var updatedPet = await _petService.UpdatePetAsync(id, dto);
-            return Ok(updatedPet);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Pet update failed for ID {PetId}", id);
-            return NotFound(ex.Message);
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Pet update could not be completed for ID {PetId}", id);
-            return BadRequest(ex.Message);
-        }
+        var updatedPet = await _petService.UpdatePetAsync(id, dto);
+        return Ok(updatedPet);
     }
 
     [HttpDelete("{id:int}")]
@@ -114,20 +72,13 @@ public class PetsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeletePet(int id)
     {
-        try
+        var deleted = await _petService.DeletePetAsync(id);
+        if (!deleted)
         {
-            var deleted = await _petService.DeletePetAsync(id);
-            if (!deleted)
-            {
-                return BadRequest("Pet could not be deleted.");
-            }
+            _logger.LogWarning("Pet delete returned false for ID {PetId}", id);
+            return BadRequest("Pet could not be deleted.");
+        }
 
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Pet delete failed for ID {PetId}", id);
-            return NotFound(ex.Message);
-        }
+        return NoContent();
     }
 }

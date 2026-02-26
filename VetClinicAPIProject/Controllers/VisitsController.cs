@@ -33,16 +33,8 @@ public class VisitsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<VisitDto>> GetVisitById(int id)
     {
-        try
-        {
-            var visit = await _visitService.GetVisitByIdAsync(id);
-            return Ok(visit);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Visit lookup failed for ID {VisitId}", id);
-            return NotFound(ex.Message);
-        }
+        var visit = await _visitService.GetVisitByIdAsync(id);
+        return Ok(visit);
     }
 
     [HttpPost]
@@ -59,21 +51,8 @@ public class VisitsController : ControllerBase
             return Unauthorized("User identity is invalid.");
         }
 
-        try
-        {
-            var createdVisit = await _visitService.CreateVisitAsync(dto, veterinarianId);
-            return CreatedAtAction(nameof(GetVisitById), new { id = createdVisit.VisitId }, createdVisit);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Visit creation failed due to missing dependency");
-            return NotFound(ex.Message);
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Visit creation could not be completed");
-            return BadRequest(ex.Message);
-        }
+        var createdVisit = await _visitService.CreateVisitAsync(dto, veterinarianId);
+        return CreatedAtAction(nameof(GetVisitById), new { id = createdVisit.VisitId }, createdVisit);
     }
 
     [HttpPut("{id:int}")]
@@ -82,21 +61,8 @@ public class VisitsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<VisitDto>> UpdateVisit(int id, [FromBody] UpdateVisitDto dto)
     {
-        try
-        {
-            var updatedVisit = await _visitService.UpdateVisitAsync(id, dto);
-            return Ok(updatedVisit);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Visit update failed for ID {VisitId}", id);
-            return NotFound(ex.Message);
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Visit update could not be completed for ID {VisitId}", id);
-            return BadRequest(ex.Message);
-        }
+        var updatedVisit = await _visitService.UpdateVisitAsync(id, dto);
+        return Ok(updatedVisit);
     }
 
     [HttpDelete("{id:int}")]
@@ -106,20 +72,13 @@ public class VisitsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeleteVisit(int id)
     {
-        try
+        var deleted = await _visitService.DeleteVisitAsync(id);
+        if (!deleted)
         {
-            var deleted = await _visitService.DeleteVisitAsync(id);
-            if (!deleted)
-            {
-                return BadRequest("Visit could not be deleted.");
-            }
+            _logger.LogWarning("Visit delete returned false for ID {VisitId}", id);
+            return BadRequest("Visit could not be deleted.");
+        }
 
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Visit delete failed for ID {VisitId}", id);
-            return NotFound(ex.Message);
-        }
+        return NoContent();
     }
 }

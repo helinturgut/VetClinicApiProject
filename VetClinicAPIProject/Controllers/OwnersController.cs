@@ -32,16 +32,8 @@ public class OwnersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<OwnerDto>> GetOwnerById(int id)
     {
-        try
-        {
-            var owner = await _ownerService.GetOwnerByIdAsync(id);
-            return Ok(owner);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Owner lookup failed for ID {OwnerId}", id);
-            return NotFound(ex.Message);
-        }
+        var owner = await _ownerService.GetOwnerByIdAsync(id);
+        return Ok(owner);
     }
 
     [HttpPost]
@@ -59,21 +51,8 @@ public class OwnersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<OwnerDto>> UpdateOwner(int id, [FromBody] UpdateOwnerDto dto)
     {
-        try
-        {
-            var updatedOwner = await _ownerService.UpdateOwnerAsync(id, dto);
-            return Ok(updatedOwner);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Owner update failed for ID {OwnerId}", id);
-            return NotFound(ex.Message);
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Owner update could not be completed for ID {OwnerId}", id);
-            return BadRequest(ex.Message);
-        }
+        var updatedOwner = await _ownerService.UpdateOwnerAsync(id, dto);
+        return Ok(updatedOwner);
     }
 
     [HttpDelete("{id:int}")]
@@ -82,20 +61,13 @@ public class OwnersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteOwner(int id)
     {
-        try
+        var deleted = await _ownerService.DeleteOwnerAsync(id);
+        if (!deleted)
         {
-            var deleted = await _ownerService.DeleteOwnerAsync(id);
-            if (!deleted)
-            {
-                return BadRequest("Owner could not be deleted.");
-            }
+            _logger.LogWarning("Owner delete returned false for ID {OwnerId}", id);
+            return BadRequest("Owner could not be deleted.");
+        }
 
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Owner delete failed for ID {OwnerId}", id);
-            return NotFound(ex.Message);
-        }
+        return NoContent();
     }
 }

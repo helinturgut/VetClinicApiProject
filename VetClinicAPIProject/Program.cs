@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using VetClinicAPIProject.Data;
+using VetClinicAPIProject.Middleware;
 using VetClinicAPIProject.Models;
 using VetClinicAPIProject.Repositories.Implementations;
 using VetClinicAPIProject.Repositories.Interfaces;
@@ -127,6 +128,7 @@ app.UseHttpsRedirection();
 
 app.UseCors();
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
