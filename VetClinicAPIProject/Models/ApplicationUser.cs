@@ -12,6 +12,8 @@ public class ApplicationUser : IdentityUser
     [StringLength(200)]
     public string? ClinicName { get; set; }
 
+    public bool IsApproved { get; set; } = true;
+
     //links users to performed visits for auditing 
     public ICollection<Visit> Visits { get; set; } = new List<Visit>();
 }

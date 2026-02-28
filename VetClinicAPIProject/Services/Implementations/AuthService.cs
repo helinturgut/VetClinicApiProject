@@ -28,7 +28,7 @@ public class AuthService : IAuthService
         _logger = logger;
     }
 
-    public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
+    public async Task<RegisterResponseDto> RegisterAsync(RegisterDto dto)
     {
         var existingUser = await _userManager.FindByEmailAsync(dto.Email);
         if (existingUser is not null)
@@ -48,7 +48,8 @@ public class AuthService : IAuthService
         {
             UserName = dto.Email,
             Email = dto.Email,
-            FullName = dto.FullName
+            FullName = dto.FullName,
+            IsApproved = false
         };
 
         var createResult = await _userManager.CreateAsync(user, dto.Password);
@@ -67,8 +68,20 @@ public class AuthService : IAuthService
             throw new InvalidOperationException(errors);
         }
 
-        _logger.LogInformation("User registered successfully with ID {UserId} and role {Role}", user.Id, defaultRole);
-        return GenerateJwtToken(user, defaultRole);
+        _logger.LogInformation(
+            "User registered successfully with ID {UserId} and role {Role}. Approval required: {RequiresApproval}",
+            user.Id,
+            defaultRole,
+            true);
+
+        return new RegisterResponseDto
+        {
+            Email = user.Email ?? string.Empty,
+            FullName = user.FullName,
+            Role = defaultRole,
+            RequiresApproval = true,
+            Message = "Registration successful. Await admin approval."
+        };
     }
 
     public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
@@ -93,6 +106,12 @@ public class AuthService : IAuthService
         {
             _logger.LogWarning("Login failed because user {UserId} has no assigned role", user.Id);
             throw new InvalidOperationException("User role is not configured.");
+        }
+
+        if (roles.Contains("Veterinarian") && !user.IsApproved)
+        {
+            _logger.LogWarning("Login failed because veterinarian account is pending approval for user {UserId}", user.Id);
+            throw new UnauthorizedAccessException("Your account is pending admin approval.");
         }
 
         _logger.LogInformation("User {UserId} logged in successfully with role {Role}", user.Id, role);

@@ -18,7 +18,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto dto)
+    public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterDto dto)
     {
         var response = await _authService.RegisterAsync(dto);
         _logger.LogInformation("Register endpoint completed for email {Email}", dto.Email);
