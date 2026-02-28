@@ -1,4 +1,5 @@
 using System.Text;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,8 +13,31 @@ using VetClinicAPIProject.Repositories.Interfaces;
 using VetClinicAPIProject.Services.Implementations;
 using VetClinicAPIProject.Services.Interfaces;
 
+var aspNetCoreEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+if (string.Equals(aspNetCoreEnvironment, "Development", StringComparison.OrdinalIgnoreCase))
+{
+    var existingJwtSecret = Environment.GetEnvironmentVariable("JwtSettings__Secret");
+    var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+
+    if (File.Exists(envPath))
+    {
+        Env.Load(envPath);
+
+        if (!string.IsNullOrWhiteSpace(existingJwtSecret))
+        {
+            Environment.SetEnvironmentVariable("JwtSettings__Secret", existingJwtSecret);
+        }
+    }
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
+var jwtSecret = builder.Configuration["JwtSettings:Secret"];
+if (string.IsNullOrWhiteSpace(jwtSecret))
+{
+    throw new InvalidOperationException(
+        "Missing JWT secret. Set JwtSettings__Secret as an environment variable or in VetClinicAPIProject/.env for local development.");
+}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -47,7 +71,7 @@ builder.Services.AddAuthentication(options =>
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Secret"]!))
+                Encoding.UTF8.GetBytes(jwtSecret))
         };
     });
 
