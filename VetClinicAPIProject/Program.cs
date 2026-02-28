@@ -13,6 +13,8 @@ using VetClinicAPIProject.Repositories.Interfaces;
 using VetClinicAPIProject.Services.Implementations;
 using VetClinicAPIProject.Services.Interfaces;
 
+const string ApiCorsPolicyName = "ApiCorsPolicy";
+
 var aspNetCoreEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 if (string.Equals(aspNetCoreEnvironment, "Development", StringComparison.OrdinalIgnoreCase))
 {
@@ -118,9 +120,38 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    var configuredOrigins = builder.Configuration
+        .GetSection("Cors:AllowedOrigins")
+        .Get<string[]>()?
+        .Where(origin => !string.IsNullOrWhiteSpace(origin))
+        .Select(origin => origin.Trim().TrimEnd('/'))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray() ?? Array.Empty<string>();
+
+    options.AddPolicy(ApiCorsPolicyName, policy =>
     {
-        policy.AllowAnyOrigin()
+        if (configuredOrigins.Length > 0)
+        {
+            policy.WithOrigins(configuredOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+
+            return;
+        }
+
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.SetIsOriginAllowed(origin =>
+                Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
+                (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+                 uri.Host.Equals("127.0.0.1")))
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+
+            return;
+        }
+
+        policy.SetIsOriginAllowed(_ => false)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -151,7 +182,7 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseCors();
+app.UseCors(ApiCorsPolicyName);
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseAuthentication();
