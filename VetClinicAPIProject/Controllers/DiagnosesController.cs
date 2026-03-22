@@ -11,10 +11,12 @@ namespace VetClinicAPIProject.Controllers;
 public class DiagnosesController : ControllerBase
 {
     private readonly IDiagnosisService _diagnosisService;
+    private readonly ILogger<DiagnosesController> _logger;
 
-    public DiagnosesController(IDiagnosisService diagnosisService)
+    public DiagnosesController(IDiagnosisService diagnosisService, ILogger<DiagnosesController> logger)
     {
         _diagnosisService = diagnosisService;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -22,6 +24,7 @@ public class DiagnosesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<DiagnosisDto>>> GetDiagnosesByVisitId([FromRoute] int visitId)
     {
+        _logger.LogInformation("Fetching diagnoses for visit {VisitId}", visitId);
         var diagnoses = await _diagnosisService.GetDiagnosesByVisitIdAsync(visitId);
         return Ok(diagnoses);
     }
@@ -32,7 +35,9 @@ public class DiagnosesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DiagnosisDto>> CreateDiagnosis([FromRoute] int visitId, [FromBody] CreateDiagnosisDto dto)
     {
+        _logger.LogInformation("Creating diagnosis for visit {VisitId}", visitId);
         var createdDiagnosis = await _diagnosisService.CreateDiagnosisAsync(visitId, dto);
+        _logger.LogInformation("Diagnosis created with ID {DiagnosisId} for visit {VisitId}", createdDiagnosis.DiagnosisId, visitId);
         return CreatedAtAction(nameof(GetDiagnosesByVisitId), new { visitId }, createdDiagnosis);
     }
 }

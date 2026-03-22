@@ -14,6 +14,10 @@ public class ApplicationUser : IdentityUser
 
     public bool IsApproved { get; set; } = true;
 
-    //links users to performed visits for auditing 
+    public string? RefreshToken { get; set; }
+
+    public DateTime? RefreshTokenExpiry { get; set; }
+
+    //links users to performed visits for auditing
     public ICollection<Visit> Visits { get; set; } = new List<Visit>();
 }

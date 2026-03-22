@@ -5,6 +5,7 @@ using Moq;
 using VetClinicAPIProject.DTOs.Auth;
 using VetClinicAPIProject.Models;
 using VetClinicAPIProject.Services.Implementations;
+using VetClinicAPIProject.Services.Interfaces;
 
 namespace VetClinicAPIProject.Tests.Services;
 
@@ -25,6 +26,7 @@ public class AuthServiceTests
             userManagerMock.Object,
             roleManagerMock.Object,
             configuration,
+            Mock.Of<IEmailService>(),
             Mock.Of<ILogger<AuthService>>());
 
         var dto = new RegisterDto
@@ -56,11 +58,13 @@ public class AuthServiceTests
         userManagerMock.Setup(manager => manager.FindByEmailAsync(user.Email!)).ReturnsAsync(user);
         userManagerMock.Setup(manager => manager.CheckPasswordAsync(user, "Password123!")).ReturnsAsync(true);
         userManagerMock.Setup(manager => manager.GetRolesAsync(user)).ReturnsAsync(["Veterinarian"]);
+        userManagerMock.Setup(manager => manager.UpdateAsync(It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
 
         var service = new AuthService(
             userManagerMock.Object,
             roleManagerMock.Object,
             configuration,
+            Mock.Of<IEmailService>(),
             Mock.Of<ILogger<AuthService>>());
 
         var result = await service.LoginAsync(new LoginDto
@@ -98,6 +102,7 @@ public class AuthServiceTests
             userManagerMock.Object,
             roleManagerMock.Object,
             configuration,
+            Mock.Of<IEmailService>(),
             Mock.Of<ILogger<AuthService>>());
 
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.LoginAsync(new LoginDto
@@ -135,6 +140,7 @@ public class AuthServiceTests
             userManagerMock.Object,
             roleManagerMock.Object,
             configuration,
+            Mock.Of<IEmailService>(),
             Mock.Of<ILogger<AuthService>>());
 
         var response = await service.RegisterAsync(new RegisterDto

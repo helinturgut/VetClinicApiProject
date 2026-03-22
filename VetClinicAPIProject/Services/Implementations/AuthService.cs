@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -14,17 +15,20 @@ public class AuthService : IAuthService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
+    private readonly IEmailService _emailService;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
         IConfiguration configuration,
+        IEmailService emailService,
         ILogger<AuthService> logger)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
+        _emailService = emailService;
         _logger = logger;
     }
 
@@ -74,6 +78,8 @@ public class AuthService : IAuthService
             defaultRole,
             true);
 
+        await _emailService.SendWelcomeEmailAsync(user.Email ?? string.Empty, user.FullName);
+
         return new RegisterResponseDto
         {
             Email = user.Email ?? string.Empty,
@@ -115,10 +121,35 @@ public class AuthService : IAuthService
         }
 
         _logger.LogInformation("User {UserId} logged in successfully with role {Role}", user.Id, role);
-        return GenerateJwtToken(user, role);
+        return await GenerateJwtTokenAsync(user, role);
     }
 
-    private AuthResponseDto GenerateJwtToken(ApplicationUser user, string role)
+    public async Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenDto dto)
+    {
+        var principal = GetPrincipalFromExpiredToken(dto.Token);
+        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            _logger.LogWarning("Refresh token failed: could not extract user ID from token");
+            throw new UnauthorizedAccessException("Invalid token.");
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null || user.RefreshToken != dto.RefreshToken || user.RefreshTokenExpiry <= DateTime.UtcNow)
+        {
+            _logger.LogWarning("Refresh token failed for user {UserId}: invalid or expired refresh token", userId);
+            throw new UnauthorizedAccessException("Invalid or expired refresh token.");
+        }
+
+        var roles = await _userManager.GetRolesAsync(user);
+        var role = roles.FirstOrDefault() ?? string.Empty;
+
+        _logger.LogInformation("Refresh token accepted for user {UserId}, issuing new tokens", userId);
+        return await GenerateJwtTokenAsync(user, role);
+    }
+
+    private async Task<AuthResponseDto> GenerateJwtTokenAsync(ApplicationUser user, string role)
     {
         var secret = _configuration["JwtSettings:Secret"];
         var issuer = _configuration["JwtSettings:Issuer"];
@@ -155,13 +186,54 @@ public class AuthService : IAuthService
             expires: expiresAt,
             signingCredentials: creds);
 
+       
+        var refreshToken = GenerateRefreshToken();
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+        await _userManager.UpdateAsync(user);
+
         return new AuthResponseDto
         {
             Token = new JwtSecurityTokenHandler().WriteToken(jwt),
+            RefreshToken = refreshToken,
             Email = user.Email ?? string.Empty,
             FullName = user.FullName,
             Role = role,
             Expiration = expiresAt
         };
+    }
+
+    private static string GenerateRefreshToken()
+    {
+        var bytes = RandomNumberGenerator.GetBytes(64);
+        return Convert.ToBase64String(bytes);
+    }
+
+    private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+    {
+        var secret = _configuration["JwtSettings:Secret"]
+            ?? throw new InvalidOperationException("JWT secret is not configured.");
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = false, // allow expired tokens for refresh
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = _configuration["JwtSettings:Issuer"],
+            ValidAudience = _configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
+        };
+
+        var handler = new JwtSecurityTokenHandler();
+        var principal = handler.ValidateToken(token, validationParameters, out var securityToken);
+
+        if (securityToken is not JwtSecurityToken jwt ||
+            !jwt.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new UnauthorizedAccessException("Invalid token.");
+        }
+
+        return principal;
     }
 }

@@ -32,4 +32,14 @@ public class AuthController : ControllerBase
         _logger.LogInformation("Login endpoint completed for email {Email}", dto.Email);
         return Ok(response);
     }
+
+    [HttpPost("refresh")]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<AuthResponseDto>> Refresh([FromBody] RefreshTokenDto dto)
+    {
+        var response = await _authService.RefreshTokenAsync(dto);
+        _logger.LogInformation("Token refreshed successfully");
+        return Ok(response);
+    }
 }

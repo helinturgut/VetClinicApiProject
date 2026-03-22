@@ -1,7 +1,9 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -158,9 +160,23 @@ builder.Services.AddCors(options =>
 });
 
 
+// Rate Limiting 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("fixed", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 100;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 0;
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 builder.Services.AddControllers();
 builder.Services.AddHealthChecks();
 
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IOwnerService, OwnerService>();
@@ -184,6 +200,8 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 app.UseCors(ApiCorsPolicyName);
+
+app.UseRateLimiter();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseAuthentication();
