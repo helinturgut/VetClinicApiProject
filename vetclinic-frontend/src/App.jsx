@@ -11,13 +11,9 @@ import OwnerDetailPage from './pages/owners/OwnerDetailPage';
 import PetsPage from './pages/pets/PetsPage';
 import PetDetailPage from './pages/pets/PetDetailPage';
 import PetHistoryPage from './pages/pets/PetHistoryPage';
+import VisitsPage from './pages/visits/VisitsPage';
+import VisitDetailPage from './pages/visits/VisitDetailPage';
 import { logout } from './store/slices/authSlice';
-
-const Placeholder = ({ title }) => (
-  <div className="container py-4">
-    <p className="text-muted">{title} — coming soon</p>
-  </div>
-);
 
 export default function App() {
   const dispatch = useDispatch();
@@ -50,15 +46,15 @@ export default function App() {
         {/* Admin + Vet only */}
         <Route element={<ProtectedRoute allowedRoles={['Admin', 'Veterinarian']} />}>
           <Route element={<AuthenticatedLayout />}>
-            <Route path="/visits" element={<Placeholder title="Visits" />} />
-            <Route path="/visits/:id" element={<Placeholder title="Visit Details" />} />
+            <Route path="/visits" element={<VisitsPage />} />
+            <Route path="/visits/:id" element={<VisitDetailPage />} />
           </Route>
         </Route>
 
         {/* Admin only */}
         <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
           <Route element={<AuthenticatedLayout />}>
-            <Route path="/admin/veterinarians" element={<Placeholder title="Admin Panel" />} />
+            <Route path="/admin/veterinarians" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Route>
 
