@@ -13,6 +13,7 @@ import PetDetailPage from './pages/pets/PetDetailPage';
 import PetHistoryPage from './pages/pets/PetHistoryPage';
 import VisitsPage from './pages/visits/VisitsPage';
 import VisitDetailPage from './pages/visits/VisitDetailPage';
+import AdminVeterinariansPage from './pages/admin/AdminVeterinariansPage';
 import { logout } from './store/slices/authSlice';
 
 export default function App() {
@@ -54,7 +55,7 @@ export default function App() {
         {/* Admin only */}
         <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
           <Route element={<AuthenticatedLayout />}>
-            <Route path="/admin/veterinarians" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/admin/veterinarians" element={<AdminVeterinariansPage />} />
           </Route>
         </Route>
 

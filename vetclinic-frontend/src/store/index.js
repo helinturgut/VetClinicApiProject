@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import ownersReducer from './slices/ownersSlice';
 import petsReducer from './slices/petsSlice';
 import visitsReducer from './slices/visitsSlice';
+import adminReducer from './slices/adminSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,5 +11,6 @@ export const store = configureStore({
     owners: ownersReducer,
     pets: petsReducer,
     visits: visitsReducer,
+    admin: adminReducer,
   },
 });
