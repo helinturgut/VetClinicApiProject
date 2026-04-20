@@ -8,6 +8,9 @@ import RegisterPage from './pages/auth/RegisterPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import OwnersPage from './pages/owners/OwnersPage';
 import OwnerDetailPage from './pages/owners/OwnerDetailPage';
+import PetsPage from './pages/pets/PetsPage';
+import PetDetailPage from './pages/pets/PetDetailPage';
+import PetHistoryPage from './pages/pets/PetHistoryPage';
 import { logout } from './store/slices/authSlice';
 
 const Placeholder = ({ title }) => (
@@ -38,9 +41,9 @@ export default function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/owners" element={<OwnersPage />} />
             <Route path="/owners/:id" element={<OwnerDetailPage />} />
-            <Route path="/pets" element={<Placeholder title="Pets" />} />
-            <Route path="/pets/:id" element={<Placeholder title="Pet Details" />} />
-            <Route path="/pets/:id/history" element={<Placeholder title="Pet History" />} />
+            <Route path="/pets" element={<PetsPage />} />
+            <Route path="/pets/:id" element={<PetDetailPage />} />
+            <Route path="/pets/:id/history" element={<PetHistoryPage />} />
           </Route>
         </Route>
 
