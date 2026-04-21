@@ -51,7 +51,7 @@ export default function PetsPage() {
   return (
     <Container className="py-4">
       {/* Header */}
-      <div className="d-flex align-items-center justify-content-between mb-3">
+      <div className="d-flex align-items-center justify-content-between mb-3 page-header">
         <h4 className="fw-bold mb-0">Pets</h4>
         <Button variant="primary" onClick={openModal}>
           + New Pet
@@ -86,16 +86,17 @@ export default function PetsPage() {
 
       {/* Empty state */}
       {!isLoading && !error && filtered.length === 0 && (
-        <p className="text-muted">
+        <div className="empty-state">
+          <span className="empty-state-icon">🐾</span>
           {search ? 'No pets match your search.' : 'No pets yet. Add one to get started.'}
-        </p>
+        </div>
       )}
 
       {/* Pet cards */}
       <Row xs={1} sm={2} lg={3} className="g-3">
         {filtered.map((pet) => (
           <Col key={pet.id}>
-            <Card className="h-100 shadow-sm border-0">
+            <Card className="h-100 shadow-sm border-0 card-hover">
               <Card.Body className="d-flex flex-column">
                 <div className="d-flex align-items-start justify-content-between mb-1">
                   <Card.Title className="fs-6 fw-semibold mb-0">{pet.name}</Card.Title>

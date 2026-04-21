@@ -14,6 +14,7 @@ import PetHistoryPage from './pages/pets/PetHistoryPage';
 import VisitsPage from './pages/visits/VisitsPage';
 import VisitDetailPage from './pages/visits/VisitDetailPage';
 import AdminVeterinariansPage from './pages/admin/AdminVeterinariansPage';
+import ScrollToTop from './components/ui/ScrollToTop';
 import { logout } from './store/slices/authSlice';
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />

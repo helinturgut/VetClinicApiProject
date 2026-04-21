@@ -41,7 +41,7 @@ export default function OwnersPage() {
   return (
     <Container className="py-4">
       {/* Header */}
-      <div className="d-flex align-items-center justify-content-between mb-3">
+      <div className="d-flex align-items-center justify-content-between mb-3 page-header">
         <h4 className="fw-bold mb-0">Owners</h4>
         <Button variant="primary" onClick={openModal}>
           + New Owner
@@ -76,16 +76,17 @@ export default function OwnersPage() {
 
       {/* Empty state */}
       {!isLoading && !error && filtered.length === 0 && (
-        <p className="text-muted">
+        <div className="empty-state">
+          <span className="empty-state-icon">👤</span>
           {search ? 'No owners match your search.' : 'No owners yet. Add one to get started.'}
-        </p>
+        </div>
       )}
 
       {/* Owner cards */}
       <Row xs={1} sm={2} lg={3} className="g-3">
         {filtered.map((owner) => (
           <Col key={owner.id}>
-            <Card className="h-100 shadow-sm border-0">
+            <Card className="h-100 shadow-sm border-0 card-hover">
               <Card.Body className="d-flex flex-column">
                 <Card.Title className="fs-6 fw-semibold mb-1">
                   {owner.firstName} {owner.lastName}

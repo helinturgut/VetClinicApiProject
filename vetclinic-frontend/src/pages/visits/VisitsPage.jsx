@@ -55,7 +55,7 @@ export default function VisitsPage() {
 
   return (
     <Container className="py-4">
-      <div className="d-flex align-items-center justify-content-between mb-3">
+      <div className="d-flex align-items-center justify-content-between mb-3 page-header">
         <h4 className="fw-bold mb-0">Visits</h4>
         <Button variant="primary" onClick={openModal}>
           + New Visit
@@ -84,15 +84,16 @@ export default function VisitsPage() {
       )}
 
       {!isLoading && !error && filtered.length === 0 && (
-        <p className="text-muted">
+        <div className="empty-state">
+          <span className="empty-state-icon">🩺</span>
           {search ? 'No visits match your search.' : 'No visits yet. Add one to get started.'}
-        </p>
+        </div>
       )}
 
       <Row xs={1} sm={2} lg={3} className="g-3">
         {filtered.map((visit) => (
           <Col key={visit.id}>
-            <Card className="h-100 shadow-sm border-0">
+            <Card className="h-100 shadow-sm border-0 card-hover">
               <Card.Body className="d-flex flex-column">
                 <div className="d-flex align-items-start justify-content-between mb-1">
                   <Card.Title className="fs-6 fw-semibold mb-0">

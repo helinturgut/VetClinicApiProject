@@ -140,7 +140,7 @@ export default function VisitDetailPage() {
           ) : (
             <Card className="shadow-sm border-0">
               <Card.Body className="p-4">
-                <dl className="row mb-0">
+                <dl className="row mb-0 detail-list">
                   <dt className="col-sm-4 text-muted fw-normal">Pet</dt>
                   <dd className="col-sm-8 fw-semibold">
                     {pets.length > 0 ? (

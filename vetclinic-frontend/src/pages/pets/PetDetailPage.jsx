@@ -118,7 +118,7 @@ export default function PetDetailPage() {
       ) : (
         <Card className="shadow-sm border-0">
           <Card.Body className="p-4">
-            <dl className="row mb-0">
+            <dl className="row mb-0 detail-list">
               <dt className="col-sm-4 text-muted fw-normal">Name</dt>
               <dd className="col-sm-8 fw-semibold">{selected.name}</dd>
 
