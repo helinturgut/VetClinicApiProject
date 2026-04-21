@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Container, Card, Button, Alert, Spinner, Badge,
-  Tab, Tabs, ListGroup, Modal,
+  Tab, Tabs, ListGroup,
 } from 'react-bootstrap';
 import {
   fetchVisit, updateVisit, deleteVisit,
@@ -16,12 +16,8 @@ import { useAuth } from '../../hooks/useAuth';
 import VisitForm from '../../components/visits/VisitForm';
 import DiagnosisForm from '../../components/visits/DiagnosisForm';
 import TreatmentForm from '../../components/visits/TreatmentForm';
-
-const STATUS_BADGE = {
-  Scheduled: 'primary',
-  Completed: 'success',
-  Cancelled: 'danger',
-};
+import ConfirmModal from '../../components/ui/ConfirmModal';
+import { STATUS_BADGE } from '../../constants/badges';
 
 export default function VisitDetailPage() {
   const { id } = useParams();
@@ -77,6 +73,17 @@ export default function VisitDetailPage() {
   const handleAddTreatment = async (data) => {
     const result = await dispatch(addTreatment({ visitId: id, data }));
     if (addTreatment.fulfilled.match(result)) setShowTreatForm(false);
+  };
+
+  
+  const toggleDiagForm = () => {
+    if (showDiagForm) dispatch(clearError());
+    setShowDiagForm((v) => !v);
+  };
+
+  const toggleTreatForm = () => {
+    if (showTreatForm) dispatch(clearError());
+    setShowTreatForm((v) => !v);
   };
 
   if (isLoading && !selected) {
@@ -191,7 +198,7 @@ export default function VisitDetailPage() {
         {/* ── Diagnoses tab ── */}
         <Tab eventKey="diagnoses" title={`Diagnoses (${diagnoses.length})`}>
           <div className="d-flex justify-content-end mb-3">
-            <Button variant="primary" size="sm" onClick={() => setShowDiagForm((v) => !v)}>
+            <Button variant="primary" size="sm" onClick={toggleDiagForm}>
               {showDiagForm ? 'Cancel' : '+ Add Diagnosis'}
             </Button>
           </div>
@@ -200,7 +207,7 @@ export default function VisitDetailPage() {
             <Card className="shadow-sm border-0 p-3 mb-3">
               <DiagnosisForm
                 onSubmit={handleAddDiagnosis}
-                onCancel={() => setShowDiagForm(false)}
+                onCancel={toggleDiagForm}
                 isLoading={isLoading}
                 error={error}
               />
@@ -213,7 +220,7 @@ export default function VisitDetailPage() {
             </div>
           )}
 
-          {!isLoading && diagnoses.length === 0 && (
+          {!isLoading && diagnoses.length === 0 && !showDiagForm && (
             <p className="text-muted">No diagnoses recorded for this visit.</p>
           )}
 
@@ -232,7 +239,7 @@ export default function VisitDetailPage() {
         {/* ── Treatments tab ── */}
         <Tab eventKey="treatments" title={`Treatments (${treatments.length})`}>
           <div className="d-flex justify-content-end mb-3">
-            <Button variant="primary" size="sm" onClick={() => setShowTreatForm((v) => !v)}>
+            <Button variant="primary" size="sm" onClick={toggleTreatForm}>
               {showTreatForm ? 'Cancel' : '+ Add Treatment'}
             </Button>
           </div>
@@ -241,7 +248,7 @@ export default function VisitDetailPage() {
             <Card className="shadow-sm border-0 p-3 mb-3">
               <TreatmentForm
                 onSubmit={handleAddTreatment}
-                onCancel={() => setShowTreatForm(false)}
+                onCancel={toggleTreatForm}
                 isLoading={isLoading}
                 error={error}
               />
@@ -254,7 +261,7 @@ export default function VisitDetailPage() {
             </div>
           )}
 
-          {!isLoading && treatments.length === 0 && (
+          {!isLoading && treatments.length === 0 && !showTreatForm && (
             <p className="text-muted">No treatments recorded for this visit.</p>
           )}
 
@@ -274,23 +281,14 @@ export default function VisitDetailPage() {
         </Tab>
       </Tabs>
 
-      {/* Delete confirmation */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Delete Visit</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete this visit? This action cannot be undone.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={() => setShowDeleteModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={handleDelete} disabled={isLoading}>
-            {isLoading ? 'Deleting…' : 'Delete'}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmModal
+        show={showDeleteModal}
+        title="Delete Visit"
+        body="Are you sure you want to delete this visit? This action cannot be undone."
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+        isLoading={isLoading}
+      />
     </Container>
   );
 }

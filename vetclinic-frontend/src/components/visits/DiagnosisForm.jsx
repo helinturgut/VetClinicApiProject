@@ -5,21 +5,30 @@ const EMPTY = { description: '', notes: '' };
 
 export default function DiagnosisForm({ onSubmit, onCancel, isLoading, error }) {
   const [values, setValues] = useState(EMPTY);
+  const [validationError, setValidationError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setValues((v) => ({ ...v, [name]: value }));
+    if (name === 'description' && value.trim()) setValidationError('');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!values.description.trim()) {
+      setValidationError('Description is required.');
+      return;
+    }
     onSubmit(values);
     setValues(EMPTY);
+    setValidationError('');
   };
+
+  const displayError = validationError || error;
 
   return (
     <Form onSubmit={handleSubmit} noValidate>
-      {error && <Alert variant="danger" className="py-2">{error}</Alert>}
+      {displayError && <Alert variant="danger" className="py-2">{displayError}</Alert>}
 
       <Form.Group controlId="diagDescription" className="mb-3">
         <Form.Label>Description</Form.Label>
@@ -27,9 +36,12 @@ export default function DiagnosisForm({ onSubmit, onCancel, isLoading, error }) 
           name="description"
           value={values.description}
           onChange={handleChange}
-          required
           placeholder="e.g. Respiratory infection"
+          isInvalid={!!validationError}
         />
+        <Form.Control.Feedback type="invalid">
+          {validationError}
+        </Form.Control.Feedback>
       </Form.Group>
 
       <Form.Group controlId="diagNotes" className="mb-3">

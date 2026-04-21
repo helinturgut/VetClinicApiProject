@@ -5,16 +5,28 @@ const EMPTY = { name: '', description: '', notes: '' };
 
 export default function TreatmentForm({ onSubmit, onCancel, isLoading, error }) {
   const [values, setValues] = useState(EMPTY);
+  const [validationErrors, setValidationErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setValues((v) => ({ ...v, [name]: value }));
+    if (validationErrors[name] && value.trim()) {
+      setValidationErrors((prev) => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const errors = {};
+    if (!values.name.trim()) errors.name = 'Treatment name is required.';
+    if (!values.description.trim()) errors.description = 'Description is required.';
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
     onSubmit(values);
     setValues(EMPTY);
+    setValidationErrors({});
   };
 
   return (
@@ -29,9 +41,12 @@ export default function TreatmentForm({ onSubmit, onCancel, isLoading, error }) 
               name="name"
               value={values.name}
               onChange={handleChange}
-              required
               placeholder="e.g. Antibiotics course"
+              isInvalid={!!validationErrors.name}
             />
+            <Form.Control.Feedback type="invalid">
+              {validationErrors.name}
+            </Form.Control.Feedback>
           </Form.Group>
         </Col>
 
@@ -44,9 +59,12 @@ export default function TreatmentForm({ onSubmit, onCancel, isLoading, error }) 
               name="description"
               value={values.description}
               onChange={handleChange}
-              required
               placeholder="Describe the treatment…"
+              isInvalid={!!validationErrors.description}
             />
+            <Form.Control.Feedback type="invalid">
+              {validationErrors.description}
+            </Form.Control.Feedback>
           </Form.Group>
         </Col>
 

@@ -5,12 +5,7 @@ import {
   Container, Card, Button, Alert, Spinner, Badge, ListGroup,
 } from 'react-bootstrap';
 import { fetchPet, fetchPetHistory, clearSelected } from '../../store/slices/petsSlice';
-
-const STATUS_BADGE = {
-  Scheduled: 'primary',
-  Completed: 'success',
-  Cancelled: 'danger',
-};
+import { STATUS_BADGE } from '../../constants/badges';
 
 export default function PetHistoryPage() {
   const { id } = useParams();
@@ -44,7 +39,6 @@ export default function PetHistoryPage() {
 
   return (
     <Container className="py-4" style={{ maxWidth: 720 }}>
-      {/* Header */}
       <div className="d-flex align-items-center gap-3 mb-4">
         <Button as={Link} to={`/pets/${id}`} variant="outline-secondary" size="sm">
           ← Back to Pet

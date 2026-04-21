@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Container, Row, Col, Card, Button, Modal,
-  Alert, Spinner, Form, InputGroup,
+  Container, Row, Col, Card, Button, Modal, Alert, Spinner,
 } from 'react-bootstrap';
 import { fetchOwners, createOwner, clearError } from '../../store/slices/ownersSlice';
 import OwnerForm from '../../components/owners/OwnerForm';
+import SearchBar from '../../components/ui/SearchBar';
+import EmptyState from '../../components/ui/EmptyState';
+import PageHeader from '../../components/ui/PageHeader';
 
 export default function OwnersPage() {
   const dispatch = useDispatch();
@@ -27,9 +29,7 @@ export default function OwnersPage() {
 
   const handleCreate = async (data) => {
     const result = await dispatch(createOwner(data));
-    if (createOwner.fulfilled.match(result)) {
-      closeModal();
-    }
+    if (createOwner.fulfilled.match(result)) closeModal();
   };
 
   const filtered = list.filter((o) =>
@@ -40,49 +40,32 @@ export default function OwnersPage() {
 
   return (
     <Container className="py-4">
-      {/* Header */}
-      <div className="d-flex align-items-center justify-content-between mb-3 page-header">
-        <h4 className="fw-bold mb-0">Owners</h4>
-        <Button variant="primary" onClick={openModal}>
-          + New Owner
-        </Button>
-      </div>
+      <PageHeader title="Owners" actionLabel="+ New Owner" onAction={openModal} />
 
-      {/* Search */}
-      <InputGroup className="mb-4" style={{ maxWidth: 360 }}>
-        <Form.Control
-          placeholder="Search by name or email…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        {search && (
-          <Button variant="outline-secondary" onClick={() => setSearch('')}>
-            ✕
-          </Button>
-        )}
-      </InputGroup>
+      <SearchBar
+        value={search}
+        onChange={setSearch}
+        placeholder="Search by name or email…"
+        style={{ maxWidth: 360, marginBottom: '1.5rem' }}
+      />
 
-      {/* Loading */}
       {isLoading && !list.length && (
         <div className="text-center py-5">
           <Spinner animation="border" variant="primary" />
         </div>
       )}
 
-      {/* Fetch error */}
       {!isLoading && error && !showModal && (
         <Alert variant="danger">{error}</Alert>
       )}
 
-      {/* Empty state */}
       {!isLoading && !error && filtered.length === 0 && (
-        <div className="empty-state">
-          <span className="empty-state-icon">👤</span>
-          {search ? 'No owners match your search.' : 'No owners yet. Add one to get started.'}
-        </div>
+        <EmptyState
+          icon="👤"
+          message={search ? 'No owners match your search.' : 'No owners yet. Add one to get started.'}
+        />
       )}
 
-      {/* Owner cards */}
       <Row xs={1} sm={2} lg={3} className="g-3">
         {filtered.map((owner) => (
           <Col key={owner.id}>
@@ -109,7 +92,6 @@ export default function OwnersPage() {
         ))}
       </Row>
 
-      {/* Create Owner Modal */}
       <Modal show={showModal} onHide={closeModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>New Owner</Modal.Title>

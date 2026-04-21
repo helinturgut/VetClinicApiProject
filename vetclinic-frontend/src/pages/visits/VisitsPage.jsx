@@ -2,18 +2,15 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Container, Row, Col, Card, Button, Modal,
-  Alert, Spinner, Form, InputGroup, Badge,
+  Container, Row, Col, Card, Button, Modal, Alert, Spinner, Badge,
 } from 'react-bootstrap';
 import { fetchVisits, createVisit, clearError } from '../../store/slices/visitsSlice';
 import { fetchPets } from '../../store/slices/petsSlice';
 import VisitForm from '../../components/visits/VisitForm';
-
-const STATUS_BADGE = {
-  Scheduled: 'primary',
-  Completed: 'success',
-  Cancelled: 'danger',
-};
+import SearchBar from '../../components/ui/SearchBar';
+import EmptyState from '../../components/ui/EmptyState';
+import PageHeader from '../../components/ui/PageHeader';
+import { STATUS_BADGE } from '../../constants/badges';
 
 export default function VisitsPage() {
   const dispatch = useDispatch();
@@ -36,9 +33,7 @@ export default function VisitsPage() {
 
   const handleCreate = async (data) => {
     const result = await dispatch(createVisit(data));
-    if (createVisit.fulfilled.match(result)) {
-      closeModal();
-    }
+    if (createVisit.fulfilled.match(result)) closeModal();
   };
 
   const petName = (petId) => {
@@ -55,23 +50,14 @@ export default function VisitsPage() {
 
   return (
     <Container className="py-4">
-      <div className="d-flex align-items-center justify-content-between mb-3 page-header">
-        <h4 className="fw-bold mb-0">Visits</h4>
-        <Button variant="primary" onClick={openModal}>
-          + New Visit
-        </Button>
-      </div>
+      <PageHeader title="Visits" actionLabel="+ New Visit" onAction={openModal} />
 
-      <InputGroup className="mb-4" style={{ maxWidth: 360 }}>
-        <Form.Control
-          placeholder="Search by pet or reason…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        {search && (
-          <Button variant="outline-secondary" onClick={() => setSearch('')}>✕</Button>
-        )}
-      </InputGroup>
+      <SearchBar
+        value={search}
+        onChange={setSearch}
+        placeholder="Search by pet or reason…"
+        style={{ maxWidth: 360, marginBottom: '1.5rem' }}
+      />
 
       {isLoading && !list.length && (
         <div className="text-center py-5">
@@ -84,10 +70,10 @@ export default function VisitsPage() {
       )}
 
       {!isLoading && !error && filtered.length === 0 && (
-        <div className="empty-state">
-          <span className="empty-state-icon">🩺</span>
-          {search ? 'No visits match your search.' : 'No visits yet. Add one to get started.'}
-        </div>
+        <EmptyState
+          icon="🩺"
+          message={search ? 'No visits match your search.' : 'No visits yet. Add one to get started.'}
+        />
       )}
 
       <Row xs={1} sm={2} lg={3} className="g-3">

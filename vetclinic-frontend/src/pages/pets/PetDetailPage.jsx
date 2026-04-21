@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Container, Card, Button, Alert, Spinner, Badge, Modal,
+  Container, Card, Button, Alert, Spinner, Badge,
 } from 'react-bootstrap';
 import {
   fetchPet, updatePet, deletePet, clearSelected, clearError,
@@ -10,13 +10,8 @@ import {
 import { fetchOwners } from '../../store/slices/ownersSlice';
 import { useAuth } from '../../hooks/useAuth';
 import PetForm from '../../components/pets/PetForm';
-
-const SPECIES_BADGE = {
-  Dog: 'warning',
-  Cat: 'info',
-  Bird: 'success',
-  Rabbit: 'secondary',
-};
+import ConfirmModal from '../../components/ui/ConfirmModal';
+import { SPECIES_BADGE } from '../../constants/badges';
 
 export default function PetDetailPage() {
   const { id } = useParams();
@@ -48,16 +43,12 @@ export default function PetDetailPage() {
 
   const handleUpdate = async (data) => {
     const result = await dispatch(updatePet({ id, data }));
-    if (updatePet.fulfilled.match(result)) {
-      setEditing(false);
-    }
+    if (updatePet.fulfilled.match(result)) setEditing(false);
   };
 
   const handleDelete = async () => {
     const result = await dispatch(deletePet(id));
-    if (deletePet.fulfilled.match(result)) {
-      navigate('/pets', { replace: true });
-    }
+    if (deletePet.fulfilled.match(result)) navigate('/pets', { replace: true });
   };
 
   const ownerName = () => {
@@ -88,7 +79,6 @@ export default function PetDetailPage() {
 
   return (
     <Container className="py-4" style={{ maxWidth: 680 }}>
-      {/* Header */}
       <div className="d-flex align-items-center gap-3 mb-4">
         <Button as={Link} to="/pets" variant="outline-secondary" size="sm">
           ← Back
@@ -171,23 +161,14 @@ export default function PetDetailPage() {
         </Card>
       )}
 
-      {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Delete Pet</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete <strong>{selected.name}</strong>? This action cannot be undone.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={() => setShowDeleteModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={handleDelete} disabled={isLoading}>
-            {isLoading ? 'Deleting…' : 'Delete'}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmModal
+        show={showDeleteModal}
+        title="Delete Pet"
+        body={<>Are you sure you want to delete <strong>{selected.name}</strong>? This action cannot be undone.</>}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+        isLoading={isLoading}
+      />
     </Container>
   );
 }

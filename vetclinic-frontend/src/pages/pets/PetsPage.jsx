@@ -2,19 +2,15 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Container, Row, Col, Card, Button, Modal,
-  Alert, Spinner, Form, InputGroup, Badge,
+  Container, Row, Col, Card, Button, Modal, Alert, Spinner, Badge,
 } from 'react-bootstrap';
 import { fetchPets, createPet, clearError } from '../../store/slices/petsSlice';
 import { fetchOwners } from '../../store/slices/ownersSlice';
 import PetForm from '../../components/pets/PetForm';
-
-const SPECIES_BADGE = {
-  Dog: 'warning',
-  Cat: 'info',
-  Bird: 'success',
-  Rabbit: 'secondary',
-};
+import SearchBar from '../../components/ui/SearchBar';
+import EmptyState from '../../components/ui/EmptyState';
+import PageHeader from '../../components/ui/PageHeader';
+import { SPECIES_BADGE } from '../../constants/badges';
 
 export default function PetsPage() {
   const dispatch = useDispatch();
@@ -37,9 +33,7 @@ export default function PetsPage() {
 
   const handleCreate = async (data) => {
     const result = await dispatch(createPet(data));
-    if (createPet.fulfilled.match(result)) {
-      closeModal();
-    }
+    if (createPet.fulfilled.match(result)) closeModal();
   };
 
   const filtered = list.filter((p) =>
@@ -50,49 +44,32 @@ export default function PetsPage() {
 
   return (
     <Container className="py-4">
-      {/* Header */}
-      <div className="d-flex align-items-center justify-content-between mb-3 page-header">
-        <h4 className="fw-bold mb-0">Pets</h4>
-        <Button variant="primary" onClick={openModal}>
-          + New Pet
-        </Button>
-      </div>
+      <PageHeader title="Pets" actionLabel="+ New Pet" onAction={openModal} />
 
-      {/* Search */}
-      <InputGroup className="mb-4" style={{ maxWidth: 360 }}>
-        <Form.Control
-          placeholder="Search by name, species or breed…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        {search && (
-          <Button variant="outline-secondary" onClick={() => setSearch('')}>
-            ✕
-          </Button>
-        )}
-      </InputGroup>
+      <SearchBar
+        value={search}
+        onChange={setSearch}
+        placeholder="Search by name, species or breed…"
+        style={{ maxWidth: 360, marginBottom: '1.5rem' }}
+      />
 
-      {/* Loading */}
       {isLoading && !list.length && (
         <div className="text-center py-5">
           <Spinner animation="border" variant="primary" />
         </div>
       )}
 
-      {/* Fetch error */}
       {!isLoading && error && !showModal && (
         <Alert variant="danger">{error}</Alert>
       )}
 
-      {/* Empty state */}
       {!isLoading && !error && filtered.length === 0 && (
-        <div className="empty-state">
-          <span className="empty-state-icon">🐾</span>
-          {search ? 'No pets match your search.' : 'No pets yet. Add one to get started.'}
-        </div>
+        <EmptyState
+          icon="🐾"
+          message={search ? 'No pets match your search.' : 'No pets yet. Add one to get started.'}
+        />
       )}
 
-      {/* Pet cards */}
       <Row xs={1} sm={2} lg={3} className="g-3">
         {filtered.map((pet) => (
           <Col key={pet.id}>
@@ -136,7 +113,6 @@ export default function PetsPage() {
         ))}
       </Row>
 
-      {/* Create Pet Modal */}
       <Modal show={showModal} onHide={closeModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>New Pet</Modal.Title>
