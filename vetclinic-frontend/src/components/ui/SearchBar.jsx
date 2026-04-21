@@ -1,8 +1,8 @@
 import { Form, Button, InputGroup } from 'react-bootstrap';
 
-export default function SearchBar({ value, onChange, placeholder = 'Search…', style }) {
+export default function SearchBar({ value, onChange, placeholder = 'Search…', className = 'search-bar-wrap' }) {
   return (
-    <InputGroup style={style}>
+    <InputGroup className={className}>
       <Form.Control
         placeholder={placeholder}
         value={value}

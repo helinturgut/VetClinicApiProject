@@ -17,6 +17,8 @@ import VisitForm from '../../components/visits/VisitForm';
 import DiagnosisForm from '../../components/visits/DiagnosisForm';
 import TreatmentForm from '../../components/visits/TreatmentForm';
 import ConfirmModal from '../../components/ui/ConfirmModal';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import PageLoadError from '../../components/ui/PageLoadError';
 import { STATUS_BADGE } from '../../constants/badges';
 
 export default function VisitDetailPage() {
@@ -86,23 +88,10 @@ export default function VisitDetailPage() {
     setShowTreatForm((v) => !v);
   };
 
-  if (isLoading && !selected) {
-    return (
-      <div className="text-center py-5">
-        <Spinner animation="border" variant="primary" />
-      </div>
-    );
-  }
+  if (isLoading && !selected) return <LoadingSpinner />;
 
   if (!isLoading && error && !selected) {
-    return (
-      <Container className="py-4">
-        <Alert variant="danger">{error}</Alert>
-        <Button as={Link} to="/visits" variant="outline-secondary" size="sm">
-          ← Back to Visits
-        </Button>
-      </Container>
-    );
+    return <PageLoadError message={error} backTo="/visits" backLabel="Back to Visits" />;
   }
 
   if (!selected) return null;

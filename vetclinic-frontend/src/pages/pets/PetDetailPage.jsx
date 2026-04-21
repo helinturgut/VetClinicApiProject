@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Container, Card, Button, Alert, Spinner, Badge,
-} from 'react-bootstrap';
+import { Container, Card, Button, Alert, Badge } from 'react-bootstrap';
 import {
   fetchPet, updatePet, deletePet, clearSelected, clearError,
 } from '../../store/slices/petsSlice';
@@ -11,6 +9,8 @@ import { fetchOwners } from '../../store/slices/ownersSlice';
 import { useAuth } from '../../hooks/useAuth';
 import PetForm from '../../components/pets/PetForm';
 import ConfirmModal from '../../components/ui/ConfirmModal';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import PageLoadError from '../../components/ui/PageLoadError';
 import { SPECIES_BADGE } from '../../constants/badges';
 
 export default function PetDetailPage() {
@@ -56,30 +56,17 @@ export default function PetDetailPage() {
     return owner ? `${owner.firstName} ${owner.lastName}` : '—';
   };
 
-  if (isLoading && !selected) {
-    return (
-      <div className="text-center py-5">
-        <Spinner animation="border" variant="primary" />
-      </div>
-    );
-  }
+  if (isLoading && !selected) return <LoadingSpinner />;
 
   if (!isLoading && error && !selected) {
-    return (
-      <Container className="py-4">
-        <Alert variant="danger">{error}</Alert>
-        <Button as={Link} to="/pets" variant="outline-secondary" size="sm">
-          ← Back to Pets
-        </Button>
-      </Container>
-    );
+    return <PageLoadError message={error} backTo="/pets" backLabel="Back to Pets" />;
   }
 
   if (!selected) return null;
 
   return (
     <Container className="py-4" style={{ maxWidth: 680 }}>
-      <div className="d-flex align-items-center gap-3 mb-4">
+      <div className="d-flex align-items-center gap-3 mb-4 flex-wrap">
         <Button as={Link} to="/pets" variant="outline-secondary" size="sm">
           ← Back
         </Button>

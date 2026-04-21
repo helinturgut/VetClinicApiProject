@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Container, Row, Col, Card, Button, Modal, Alert, Spinner, Badge,
+  Container, Row, Col, Card, Button, Modal, Alert, Badge,
 } from 'react-bootstrap';
 import { fetchVisits, createVisit, clearError } from '../../store/slices/visitsSlice';
 import { fetchPets } from '../../store/slices/petsSlice';
@@ -10,6 +10,7 @@ import VisitForm from '../../components/visits/VisitForm';
 import SearchBar from '../../components/ui/SearchBar';
 import EmptyState from '../../components/ui/EmptyState';
 import PageHeader from '../../components/ui/PageHeader';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { STATUS_BADGE } from '../../constants/badges';
 
 export default function VisitsPage() {
@@ -56,14 +57,9 @@ export default function VisitsPage() {
         value={search}
         onChange={setSearch}
         placeholder="Search by pet or reason…"
-        style={{ maxWidth: 360, marginBottom: '1.5rem' }}
       />
 
-      {isLoading && !list.length && (
-        <div className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
-        </div>
-      )}
+      {isLoading && !list.length && <LoadingSpinner />}
 
       {!isLoading && error && !showModal && (
         <Alert variant="danger">{error}</Alert>

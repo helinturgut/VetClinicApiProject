@@ -26,6 +26,14 @@ main {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
+/* Disable lift on touch-only devices — tap highlight is sufficient */
+@media (hover: none) {
+  .card-hover:hover {
+    transform: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  }
+}
+
 /* ── Active nav link ── */
 .navbar .nav-link.active {
   color: #fff !important;
@@ -83,8 +91,18 @@ main {
   opacity: 0.4;
 }
 
+/* ── Search bar: full-width on mobile, capped at 360 px on sm+ ── */
+.search-bar-wrap {
+  max-width: 360px;
+  margin-bottom: 1.5rem;
+}
+
 /* ── Responsive tweaks ── */
 @media (max-width: 575px) {
+  .search-bar-wrap {
+    max-width: 100%;
+  }
+
   .page-header {
     flex-direction: column;
     align-items: flex-start !important;
@@ -103,5 +121,27 @@ main {
   .detail-list dd {
     padding-left: 0;
     margin-bottom: 0.75rem;
+  }
+
+  /* Scroll tabs horizontally instead of wrapping on very small screens */
+  .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Ensure tab panels have breathing room */
+  .tab-content {
+    padding-top: 0.25rem;
+  }
+
+  /* Auth card: reduce padding on mobile */
+  .card .card-body.p-4 {
+    padding: 1.25rem !important;
   }
 }

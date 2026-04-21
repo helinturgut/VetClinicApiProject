@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Container, Row, Col, Card, Button, Modal, Alert, Spinner,
+  Container, Row, Col, Card, Button, Modal, Alert,
 } from 'react-bootstrap';
 import { fetchOwners, createOwner, clearError } from '../../store/slices/ownersSlice';
 import OwnerForm from '../../components/owners/OwnerForm';
 import SearchBar from '../../components/ui/SearchBar';
 import EmptyState from '../../components/ui/EmptyState';
 import PageHeader from '../../components/ui/PageHeader';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 export default function OwnersPage() {
   const dispatch = useDispatch();
@@ -46,14 +47,9 @@ export default function OwnersPage() {
         value={search}
         onChange={setSearch}
         placeholder="Search by name or email…"
-        style={{ maxWidth: 360, marginBottom: '1.5rem' }}
       />
 
-      {isLoading && !list.length && (
-        <div className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
-        </div>
-      )}
+      {isLoading && !list.length && <LoadingSpinner />}
 
       {!isLoading && error && !showModal && (
         <Alert variant="danger">{error}</Alert>

@@ -4,6 +4,7 @@ import {
   Container, Card, Button, Alert, Spinner, Badge, ListGroup, Row, Col,
 } from 'react-bootstrap';
 import { fetchPendingVets, approveVet } from '../../store/slices/adminSlice';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 export default function AdminVeterinariansPage() {
   const dispatch = useDispatch();
@@ -19,7 +20,7 @@ export default function AdminVeterinariansPage() {
 
   return (
     <Container className="py-4" style={{ maxWidth: 760 }}>
-      <div className="d-flex align-items-center justify-content-between mb-4">
+      <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
           <h4 className="fw-bold mb-0">Pending Veterinarians</h4>
           <p className="text-muted small mb-0 mt-1">
@@ -35,11 +36,7 @@ export default function AdminVeterinariansPage() {
 
       {error && <Alert variant="danger">{error}</Alert>}
 
-      {isLoading && !pendingVets.length && (
-        <div className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
-        </div>
-      )}
+      {isLoading && !pendingVets.length && <LoadingSpinner />}
 
       {!isLoading && !error && pendingVets.length === 0 && (
         <Card className="shadow-sm border-0">

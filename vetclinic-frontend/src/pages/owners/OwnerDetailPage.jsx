@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Container, Card, Button, Alert, Spinner } from 'react-bootstrap';
+import { Container, Card, Button, Alert } from 'react-bootstrap';
 import {
   fetchOwner, updateOwner, clearSelected, clearError,
 } from '../../store/slices/ownersSlice';
 import OwnerForm from '../../components/owners/OwnerForm';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import PageLoadError from '../../components/ui/PageLoadError';
 
 export default function OwnerDetailPage() {
   const { id } = useParams();
@@ -30,36 +32,20 @@ export default function OwnerDetailPage() {
 
   const handleUpdate = async (data) => {
     const result = await dispatch(updateOwner({ id, data }));
-    if (updateOwner.fulfilled.match(result)) {
-      setEditing(false);
-    }
+    if (updateOwner.fulfilled.match(result)) setEditing(false);
   };
 
-  if (isLoading && !selected) {
-    return (
-      <div className="text-center py-5">
-        <Spinner animation="border" variant="primary" />
-      </div>
-    );
-  }
+  if (isLoading && !selected) return <LoadingSpinner />;
 
   if (!isLoading && error && !selected) {
-    return (
-      <Container className="py-4">
-        <Alert variant="danger">{error}</Alert>
-        <Button as={Link} to="/owners" variant="outline-secondary" size="sm">
-          ← Back to Owners
-        </Button>
-      </Container>
-    );
+    return <PageLoadError message={error} backTo="/owners" backLabel="Back to Owners" />;
   }
 
   if (!selected) return null;
 
   return (
     <Container className="py-4" style={{ maxWidth: 680 }}>
-      {/* Breadcrumb-style header */}
-      <div className="d-flex align-items-center gap-3 mb-4">
+      <div className="d-flex align-items-center gap-3 mb-4 flex-wrap">
         <Button as={Link} to="/owners" variant="outline-secondary" size="sm">
           ← Back
         </Button>
@@ -68,7 +54,6 @@ export default function OwnerDetailPage() {
         </h4>
       </div>
 
-      {/* Error banner for update failures */}
       {error && editing && <Alert variant="danger">{error}</Alert>}
 
       {editing ? (
@@ -101,11 +86,10 @@ export default function OwnerDetailPage() {
               <dd className="col-sm-8 mb-0">{selected.address}</dd>
             </dl>
 
-            <div className="d-flex gap-2 mt-4">
+            <div className="d-flex gap-2 mt-4 flex-wrap">
               <Button variant="primary" size="sm" onClick={startEdit}>
                 Edit Owner
               </Button>
-              {/* Owners cannot be deleted per system rules */}
             </div>
           </Card.Body>
         </Card>

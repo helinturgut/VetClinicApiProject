@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Container, Card, Button, Alert, Spinner, Badge, ListGroup,
-} from 'react-bootstrap';
+import { Container, Card, Button, Alert, Badge, ListGroup } from 'react-bootstrap';
 import { fetchPet, fetchPetHistory, clearSelected } from '../../store/slices/petsSlice';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import PageLoadError from '../../components/ui/PageLoadError';
 import { STATUS_BADGE } from '../../constants/badges';
 
 export default function PetHistoryPage() {
@@ -18,28 +18,15 @@ export default function PetHistoryPage() {
     return () => dispatch(clearSelected());
   }, [dispatch, id]);
 
-  if (isLoading && !selected) {
-    return (
-      <div className="text-center py-5">
-        <Spinner animation="border" variant="primary" />
-      </div>
-    );
-  }
+  if (isLoading && !selected) return <LoadingSpinner />;
 
   if (!isLoading && error && !selected) {
-    return (
-      <Container className="py-4">
-        <Alert variant="danger">{error}</Alert>
-        <Button as={Link} to="/pets" variant="outline-secondary" size="sm">
-          ← Back to Pets
-        </Button>
-      </Container>
-    );
+    return <PageLoadError message={error} backTo="/pets" backLabel="Back to Pets" />;
   }
 
   return (
     <Container className="py-4" style={{ maxWidth: 720 }}>
-      <div className="d-flex align-items-center gap-3 mb-4">
+      <div className="d-flex align-items-center gap-3 mb-4 flex-wrap">
         <Button as={Link} to={`/pets/${id}`} variant="outline-secondary" size="sm">
           ← Back to Pet
         </Button>
@@ -50,11 +37,7 @@ export default function PetHistoryPage() {
 
       {error && <Alert variant="danger">{error}</Alert>}
 
-      {isLoading && (
-        <div className="text-center py-4">
-          <Spinner animation="border" variant="primary" />
-        </div>
-      )}
+      {isLoading && <LoadingSpinner />}
 
       {!isLoading && history.length === 0 && !error && (
         <Card className="shadow-sm border-0">
