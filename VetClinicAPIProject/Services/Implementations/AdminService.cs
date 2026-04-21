@@ -10,11 +10,16 @@ public class AdminService : IAdminService
     private const string VeterinarianRole = "Veterinarian";
 
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IEmailService _emailService;
     private readonly ILogger<AdminService> _logger;
 
-    public AdminService(UserManager<ApplicationUser> userManager, ILogger<AdminService> logger)
+    public AdminService(
+        UserManager<ApplicationUser> userManager,
+        IEmailService emailService,
+        ILogger<AdminService> logger)
     {
         _userManager = userManager;
+        _emailService = emailService;
         _logger = logger;
     }
 
@@ -67,6 +72,7 @@ public class AdminService : IAdminService
             }
 
             _logger.LogInformation("Veterinarian account approved for user {UserId}", userId);
+            await _emailService.SendApprovalEmailAsync(user.Email ?? string.Empty, user.FullName);
         }
         else
         {

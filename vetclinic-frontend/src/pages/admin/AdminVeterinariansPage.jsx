@@ -50,9 +50,9 @@ export default function AdminVeterinariansPage() {
       {pendingVets.length > 0 && (
         <ListGroup variant="flush" className="shadow-sm rounded">
           {pendingVets.map((vet) => {
-            const isApproving = approving.includes(vet.id);
+            const isApproving = approving.includes(vet.userId);
             return (
-              <ListGroup.Item key={vet.id} className="py-3 px-4">
+              <ListGroup.Item key={vet.userId} className="py-3 px-4">
                 <Row className="align-items-center g-2">
                   <Col xs={12} sm>
                     <div className="fw-semibold">{vet.fullName}</div>
@@ -66,7 +66,7 @@ export default function AdminVeterinariansPage() {
                     <Button
                       variant="success"
                       size="sm"
-                      onClick={() => handleApprove(vet.id)}
+                      onClick={() => handleApprove(vet.userId)}
                       disabled={isApproving}
                     >
                       {isApproving ? (

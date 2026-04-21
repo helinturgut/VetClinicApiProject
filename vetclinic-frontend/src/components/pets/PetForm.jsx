@@ -1,26 +1,43 @@
 import { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
 
-const SPECIES = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Hamster', 'Guinea Pig', 'Fish', 'Reptile', 'Other'];
+const SPECIES_OPTIONS = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Hamster', 'Guinea Pig', 'Fish', 'Reptile', 'Other'];
 
 const EMPTY = { name: '', species: '', breed: '', birthDate: '', ownerId: '' };
+const today = new Date().toISOString().slice(0, 10);
 
+const isKnownSpecies = (s) => SPECIES_OPTIONS.includes(s);
+
+const toDropdownValue = (species) =>
+  !species || isKnownSpecies(species) ? (species ?? '') : 'Other';
+
+const toCustomValue = (species) =>
+  species && !isKnownSpecies(species) ? species : '';
+
+const normalizeInitial = (init) => {
+  if (!init) return EMPTY;
+  return { ...init, species: toDropdownValue(init.species ?? '') };
+};
 
 export default function PetForm({ initialValues, onSubmit, onCancel, isLoading, error, owners = [] }) {
-  const [values, setValues] = useState(initialValues ?? EMPTY);
+  const [values, setValues] = useState(normalizeInitial(initialValues));
+  const [customSpecies, setCustomSpecies] = useState(toCustomValue(initialValues?.species ?? ''));
 
   useEffect(() => {
-    setValues(initialValues ?? EMPTY);
+    setValues(normalizeInitial(initialValues));
+    setCustomSpecies(toCustomValue(initialValues?.species ?? ''));
   }, [initialValues]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setValues((v) => ({ ...v, [name]: value }));
+    if (name === 'species' && value !== 'Other') setCustomSpecies('');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(values);
+    const finalSpecies = values.species === 'Other' ? customSpecies.trim() : values.species;
+    onSubmit({ ...values, species: finalSpecies });
   };
 
   return (
@@ -46,12 +63,27 @@ export default function PetForm({ initialValues, onSubmit, onCancel, isLoading, 
             <Form.Label>Species</Form.Label>
             <Form.Select name="species" value={values.species} onChange={handleChange} required>
               <option value="">Select species…</option>
-              {SPECIES.map((s) => (
+              {SPECIES_OPTIONS.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </Form.Select>
           </Form.Group>
         </Col>
+
+        {values.species === 'Other' && (
+          <Col sm={6}>
+            <Form.Group controlId="petCustomSpecies">
+              <Form.Label>Specify Species</Form.Label>
+              <Form.Control
+                value={customSpecies}
+                onChange={(e) => setCustomSpecies(e.target.value)}
+                required
+                placeholder="e.g. Ferret, Turtle…"
+                maxLength={50}
+              />
+            </Form.Group>
+          </Col>
+        )}
 
         <Col sm={6}>
           <Form.Group controlId="petBreed">
@@ -74,6 +106,7 @@ export default function PetForm({ initialValues, onSubmit, onCancel, isLoading, 
               value={values.birthDate ? values.birthDate.slice(0, 10) : ''}
               onChange={handleChange}
               required
+              max={today}
             />
           </Form.Group>
         </Col>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { register, clearError } from '../../store/slices/authSlice';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ fullName: '', email: '', password: '' });
   const [validated, setValidated] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (token) navigate('/dashboard', { replace: true });
@@ -109,19 +110,29 @@ export default function RegisterPage() {
 
                 <Form.Group className="mb-4">
                   <Form.Label>Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                    minLength={8}
-                    placeholder="Min. 8 characters, upper & lowercase + digit"
-                    autoComplete="new-password"
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Password must be at least 8 characters.
-                  </Form.Control.Feedback>
+                  <InputGroup>
+                    <Form.Control
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      value={form.password}
+                      onChange={handleChange}
+                      required
+                      minLength={8}
+                      placeholder="Min. 8 characters, upper & lowercase + digit"
+                      autoComplete="new-password"
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => setShowPassword((v) => !v)}
+                      tabIndex={-1}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? '🙈' : '👁'}
+                    </Button>
+                    <Form.Control.Feedback type="invalid">
+                      Password must be at least 8 characters.
+                    </Form.Control.Feedback>
+                  </InputGroup>
                 </Form.Group>
 
                 <Button

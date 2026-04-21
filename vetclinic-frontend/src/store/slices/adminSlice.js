@@ -55,7 +55,7 @@ const adminSlice = createSlice({
       })
       .addCase(approveVet.fulfilled, (state, action) => {
         state.approving = state.approving.filter((id) => id !== action.payload);
-        state.pendingVets = state.pendingVets.filter((v) => v.id !== action.payload);
+        state.pendingVets = state.pendingVets.filter((v) => v.userId !== action.payload);
       })
       .addCase(approveVet.rejected, (state, action) => {
         state.approving = state.approving.filter((id) => id !== action.meta.arg);

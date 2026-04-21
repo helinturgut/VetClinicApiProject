@@ -197,7 +197,10 @@ await SeedData.SeedRolesAsync(app.Services);
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors(ApiCorsPolicyName);
 
