@@ -3,7 +3,9 @@ import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
 
 const SPECIES_OPTIONS = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Hamster', 'Guinea Pig', 'Fish', 'Reptile', 'Other'];
 
-const EMPTY = { name: '', species: '', breed: '', birthDate: '', ownerId: '' };
+const GENDER_OPTIONS = ['Male', 'Female'];
+
+const EMPTY = { name: '', species: '', breed: '', birthDate: '', gender: '', weight: '', ownerId: '' };
 const today = new Date().toISOString().slice(0, 10);
 
 const isKnownSpecies = (s) => SPECIES_OPTIONS.includes(s);
@@ -37,7 +39,12 @@ export default function PetForm({ initialValues, onSubmit, onCancel, isLoading, 
   const handleSubmit = (e) => {
     e.preventDefault();
     const finalSpecies = values.species === 'Other' ? customSpecies.trim() : values.species;
-    onSubmit({ ...values, species: finalSpecies });
+    onSubmit({
+      ...values,
+      species: finalSpecies,
+      weight: values.weight !== '' ? Number(values.weight) : null,
+      gender: values.gender || null,
+    });
   };
 
   return (
@@ -102,11 +109,39 @@ export default function PetForm({ initialValues, onSubmit, onCancel, isLoading, 
             <Form.Label>Date of Birth</Form.Label>
             <Form.Control
               type="date"
+              lang="en"
               name="birthDate"
               value={values.birthDate ? values.birthDate.slice(0, 10) : ''}
               onChange={handleChange}
               required
               max={today}
+            />
+          </Form.Group>
+        </Col>
+
+        <Col sm={6}>
+          <Form.Group controlId="petGender">
+            <Form.Label>Gender</Form.Label>
+            <Form.Select name="gender" value={values.gender} onChange={handleChange}>
+              <option value="">Select…</option>
+              {GENDER_OPTIONS.map((g) => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        </Col>
+
+        <Col sm={4}>
+          <Form.Group controlId="petWeight">
+            <Form.Label>Weight (kg)</Form.Label>
+            <Form.Control
+              type="number"
+              name="weight"
+              value={values.weight}
+              onChange={handleChange}
+              min={0}
+              step="0.1"
+              placeholder="0.0"
             />
           </Form.Group>
         </Col>
@@ -118,8 +153,8 @@ export default function PetForm({ initialValues, onSubmit, onCancel, isLoading, 
               <Form.Select name="ownerId" value={values.ownerId} onChange={handleChange} required>
                 <option value="">Select owner…</option>
                 {owners.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.firstName} {o.lastName}
+                  <option key={o.ownerId} value={o.ownerId}>
+                    {o.fullName}
                   </option>
                 ))}
               </Form.Select>

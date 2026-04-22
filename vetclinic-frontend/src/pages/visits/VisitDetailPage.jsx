@@ -43,7 +43,7 @@ export default function VisitDetailPage() {
   }, [dispatch, id]);
 
   const petName = () => {
-    const pet = pets.find((p) => p.id === selected?.petId);
+    const pet = pets.find((p) => p.petId === selected?.petId);
     return pet ? `${pet.name} (${pet.species})` : '—';
   };
 

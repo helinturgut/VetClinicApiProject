@@ -4,6 +4,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { register, clearError } from '../../store/slices/authSlice';
 import { useAuth } from '../../hooks/useAuth';
+import logo from '../../assets/logo.png';
+import authBg from '../../assets/auth-bg.png';
 
 export default function RegisterPage() {
   const dispatch = useDispatch();
@@ -32,21 +34,22 @@ export default function RegisterPage() {
       return;
     }
     const result = await dispatch(register(form));
-    if (register.fulfilled.match(result)) {
-      setSuccess(true);
-    }
+    if (register.fulfilled.match(result)) setSuccess(true);
   };
 
   if (success) {
     return (
-      <Container className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+      <Container
+        fluid
+        className="d-flex justify-content-center align-items-center min-vh-100 auth-bg-container"
+        style={{ backgroundImage: `url(${authBg})` }}
+      >
         <Row className="w-100 justify-content-center">
           <Col xs={12} sm={9} md={6} lg={4}>
             <Alert variant="success" className="shadow-sm">
               <Alert.Heading>Registration Successful</Alert.Heading>
               <p className="mb-3">
-                Your account is pending admin approval. You will receive an email once it has
-                been approved.
+                Your account is pending admin approval. You will receive an email once it has been approved.
               </p>
               <Link to="/login" className="btn btn-outline-success btn-sm">
                 Back to Sign In
@@ -59,12 +62,19 @@ export default function RegisterPage() {
   }
 
   return (
-    <Container className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+    <Container
+      fluid
+      className="d-flex justify-content-center align-items-center min-vh-100 auth-bg-container"
+      style={{ backgroundImage: `url(${authBg})` }}
+    >
       <Row className="w-100 justify-content-center">
         <Col xs={12} sm={9} md={6} lg={4}>
           <Card className="shadow-sm border-0">
             <Card.Body className="p-4">
-              <h4 className="mb-1 fw-bold text-center">Create Account</h4>
+              <div className="text-center mb-2">
+                <img src={logo} alt="VetClinic" style={{ height: 90, objectFit: 'contain' }} />
+              </div>
+              <h4 className="fw-bold text-center mb-1">Create Account</h4>
               <p className="text-muted text-center small mb-4">
                 Accounts require admin approval before access is granted.
               </p>
@@ -135,12 +145,7 @@ export default function RegisterPage() {
                   </InputGroup>
                 </Form.Group>
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="w-100"
-                  disabled={isLoading}
-                >
+                <Button type="submit" variant="primary" className="w-100" disabled={isLoading}>
                   {isLoading ? 'Registering...' : 'Register'}
                 </Button>
               </Form>

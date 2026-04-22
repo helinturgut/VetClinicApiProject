@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
 
-const EMPTY = { firstName: '', lastName: '', email: '', phone: '', address: '' };
-
+const EMPTY = { fullName: '', email: '', phone: '', address: '' };
 
 export default function OwnerForm({ initialValues, onSubmit, onCancel, isLoading, error }) {
   const [values, setValues] = useState(initialValues ?? EMPTY);
 
- 
   useEffect(() => {
     setValues(initialValues ?? EMPTY);
   }, [initialValues]);
@@ -27,30 +25,19 @@ export default function OwnerForm({ initialValues, onSubmit, onCancel, isLoading
       {error && <Alert variant="danger" className="py-2">{error}</Alert>}
 
       <Row className="g-3">
-        <Col sm={6}>
-          <Form.Group controlId="ownerFirstName">
-            <Form.Label>First Name</Form.Label>
+        <Col sm={12}>
+          <Form.Group controlId="ownerFullName">
+            <Form.Label>Full Name</Form.Label>
             <Form.Control
-              name="firstName"
-              value={values.firstName}
+              name="fullName"
+              value={values.fullName}
               onChange={handleChange}
               required
-              placeholder="Jane"
+              placeholder="Jane Doe"
             />
           </Form.Group>
         </Col>
-        <Col sm={6}>
-          <Form.Group controlId="ownerLastName">
-            <Form.Label>Last Name</Form.Label>
-            <Form.Control
-              name="lastName"
-              value={values.lastName}
-              onChange={handleChange}
-              required
-              placeholder="Doe"
-            />
-          </Form.Group>
-        </Col>
+
         <Col sm={6}>
           <Form.Group controlId="ownerEmail">
             <Form.Label>Email</Form.Label>
@@ -64,6 +51,7 @@ export default function OwnerForm({ initialValues, onSubmit, onCancel, isLoading
             />
           </Form.Group>
         </Col>
+
         <Col sm={6}>
           <Form.Group controlId="ownerPhone">
             <Form.Label>Phone</Form.Label>
@@ -76,6 +64,7 @@ export default function OwnerForm({ initialValues, onSubmit, onCancel, isLoading
             />
           </Form.Group>
         </Col>
+
         <Col sm={12}>
           <Form.Group controlId="ownerAddress">
             <Form.Label>Address</Form.Label>
@@ -83,7 +72,6 @@ export default function OwnerForm({ initialValues, onSubmit, onCancel, isLoading
               name="address"
               value={values.address}
               onChange={handleChange}
-              required
               placeholder="123 Main St, London"
             />
           </Form.Group>

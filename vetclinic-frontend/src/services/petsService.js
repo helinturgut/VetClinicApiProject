@@ -6,7 +6,9 @@ const petsService = {
   create: (data) => api.post('/api/pets', data).then((r) => r.data),
   update: (id, data) => api.put(`/api/pets/${id}`, data).then((r) => r.data),
   remove: (id) => api.delete(`/api/pets/${id}`).then((r) => r.data),
-  getHistory: (id) => api.get(`/api/pets/${id}/history`).then((r) => r.data),
+  getHistory: (id) => api.get(`/api/pets/${id}/history`).then((r) =>
+    (r.data.visits ?? []).map((v) => ({ ...v, id: v.visitId, reason: v.complaint }))
+  ),
 };
 
 export default petsService;

@@ -68,7 +68,7 @@ export default function PetsPage() {
 
       <Row xs={1} sm={2} lg={3} className="g-3">
         {filtered.map((pet) => (
-          <Col key={pet.id}>
+          <Col key={pet.petId}>
             <Card className="h-100 shadow-sm border-0 card-hover">
               <Card.Body className="d-flex flex-column">
                 <div className="d-flex align-items-start justify-content-between mb-1">
@@ -88,7 +88,7 @@ export default function PetsPage() {
                 <div className="mt-auto pt-3 d-flex gap-2">
                   <Button
                     as={Link}
-                    to={`/pets/${pet.id}`}
+                    to={`/pets/${pet.petId}`}
                     variant="outline-primary"
                     size="sm"
                   >
@@ -96,7 +96,7 @@ export default function PetsPage() {
                   </Button>
                   <Button
                     as={Link}
-                    to={`/pets/${pet.id}/history`}
+                    to={`/pets/${pet.petId}/history`}
                     variant="outline-secondary"
                     size="sm"
                   >

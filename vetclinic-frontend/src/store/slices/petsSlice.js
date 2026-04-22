@@ -108,7 +108,7 @@ const petsSlice = createSlice({
       .addCase(updatePet.fulfilled, (state, action) => {
         state.isLoading = false;
         state.selected = action.payload;
-        const idx = state.list.findIndex((p) => p.id === action.payload.id);
+        const idx = state.list.findIndex((p) => p.petId === action.payload.petId);
         if (idx !== -1) state.list[idx] = action.payload;
       })
       .addCase(updatePet.rejected, rejected)
@@ -116,7 +116,7 @@ const petsSlice = createSlice({
       .addCase(deletePet.pending, pending)
       .addCase(deletePet.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.list = state.list.filter((p) => p.id !== action.payload);
+        state.list = state.list.filter((p) => p.petId !== action.payload);
         state.selected = null;
       })
       .addCase(deletePet.rejected, rejected)

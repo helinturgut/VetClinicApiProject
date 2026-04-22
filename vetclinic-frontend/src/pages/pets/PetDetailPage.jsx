@@ -52,8 +52,8 @@ export default function PetDetailPage() {
   };
 
   const ownerName = () => {
-    const owner = owners.find((o) => o.id === selected?.ownerId);
-    return owner ? `${owner.firstName} ${owner.lastName}` : '—';
+    const owner = owners.find((o) => o.ownerId === selected?.ownerId);
+    return owner ? owner.fullName : (selected?.ownerName || '—');
   };
 
   if (isLoading && !selected) return <LoadingSpinner />;
@@ -84,6 +84,8 @@ export default function PetDetailPage() {
             initialValues={{
               ...selected,
               birthDate: selected.birthDate ? selected.birthDate.slice(0, 10) : '',
+              gender: selected.gender ?? '',
+              weight: selected.weight ?? '',
             }}
             onSubmit={handleUpdate}
             onCancel={cancelEdit}
@@ -112,9 +114,15 @@ export default function PetDetailPage() {
                   : '—'}
               </dd>
 
+<dt className="col-sm-4 text-muted fw-normal">Gender</dt>
+              <dd className="col-sm-8">{selected.gender || '—'}</dd>
+
+              <dt className="col-sm-4 text-muted fw-normal">Weight</dt>
+              <dd className="col-sm-8">{selected.weight != null ? `${selected.weight} kg` : '—'}</dd>
+
               <dt className="col-sm-4 text-muted fw-normal">Owner</dt>
               <dd className="col-sm-8 mb-0">
-                {owners.length > 0 ? (
+                {selected.ownerId ? (
                   <Link to={`/owners/${selected.ownerId}`}>{ownerName()}</Link>
                 ) : (
                   ownerName()
@@ -128,7 +136,7 @@ export default function PetDetailPage() {
               </Button>
               <Button
                 as={Link}
-                to={`/pets/${selected.id}/history`}
+                to={`/pets/${selected.petId}/history`}
                 variant="outline-secondary"
                 size="sm"
               >

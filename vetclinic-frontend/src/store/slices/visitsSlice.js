@@ -1,8 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import visitsService from '../../services/visitsService';
 
-const extractMessage = (err) =>
-  err.response?.data?.message || err.response?.data || err.message || 'An error occurred';
+const extractMessage = (err) => {
+  if (err.response?.data?.message) return err.response.data.message;
+  if (err.response?.data?.title) return err.response.data.title;
+  if (typeof err.response?.data === 'string') return err.response.data;
+  return err.message || 'An error occurred';
+};
 
 export const fetchVisits = createAsyncThunk('visits/fetchAll', async (_, thunkAPI) => {
   try {

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
+import dashboardBg from '../../assets/dashboard-bg.png';
 
 const MODULES = [
   {
@@ -45,6 +46,10 @@ export default function DashboardPage() {
   const visibleModules = MODULES.filter((m) => m.roles.includes(user?.role));
 
   return (
+    <div
+      className="dashboard-bg"
+      style={{ backgroundImage: `url(${dashboardBg})` }}
+    >
     <Container className="py-4">
       {/* Welcome banner */}
       <div className="p-4 mb-4 bg-white rounded shadow-sm d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-3">
@@ -79,5 +84,6 @@ export default function DashboardPage() {
         ))}
       </Row>
     </Container>
+    </div>
   );
 }

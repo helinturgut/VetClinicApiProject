@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Navbar, Nav, Container, NavDropdown, Badge } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
 import { logout } from '../../store/slices/authSlice';
+import logo from '../../assets/logo.png';
 
 const ROLE_BADGE_VARIANT = {
   Admin: 'danger',
@@ -21,9 +22,10 @@ export default function AppNavbar() {
   };
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg" sticky="top">
+    <Navbar bg="white" variant="light" expand="lg" sticky="top" className="border-bottom shadow-sm">
       <Container>
-        <Navbar.Brand as={NavLink} to="/dashboard">
+        <Navbar.Brand as={NavLink} to="/dashboard" className="d-flex align-items-center gap-2">
+          <img src={logo} alt="VetClinic" height={36} style={{ objectFit: 'contain' }} />
           VetClinic
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="main-nav" />

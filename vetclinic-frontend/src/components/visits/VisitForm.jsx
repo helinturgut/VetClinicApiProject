@@ -34,7 +34,7 @@ export default function VisitForm({ initialValues, onSubmit, onCancel, isLoading
               <Form.Select name="petId" value={values.petId} onChange={handleChange} required>
                 <option value="">Select pet…</option>
                 {pets.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name} ({p.species})</option>
+                  <option key={p.petId} value={p.petId}>{p.name} ({p.species})</option>
                 ))}
               </Form.Select>
             </Form.Group>
@@ -46,6 +46,7 @@ export default function VisitForm({ initialValues, onSubmit, onCancel, isLoading
             <Form.Label>Visit Date</Form.Label>
             <Form.Control
               type="date"
+              lang="en"
               name="visitDate"
               value={values.visitDate ? values.visitDate.slice(0, 10) : ''}
               onChange={handleChange}

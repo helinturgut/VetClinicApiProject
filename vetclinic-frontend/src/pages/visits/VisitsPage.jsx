@@ -38,7 +38,7 @@ export default function VisitsPage() {
   };
 
   const petName = (petId) => {
-    const pet = pets.find((p) => p.id === petId);
+    const pet = pets.find((p) => p.petId === petId);
     return pet ? `${pet.name} (${pet.species})` : '—';
   };
 

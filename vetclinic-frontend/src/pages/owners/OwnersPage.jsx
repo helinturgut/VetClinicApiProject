@@ -34,7 +34,7 @@ export default function OwnersPage() {
   };
 
   const filtered = list.filter((o) =>
-    `${o.firstName} ${o.lastName} ${o.email}`
+    `${o.fullName} ${o.email}`
       .toLowerCase()
       .includes(search.toLowerCase())
   );
@@ -64,18 +64,18 @@ export default function OwnersPage() {
 
       <Row xs={1} sm={2} lg={3} className="g-3">
         {filtered.map((owner) => (
-          <Col key={owner.id}>
+          <Col key={owner.ownerId}>
             <Card className="h-100 shadow-sm border-0 card-hover">
               <Card.Body className="d-flex flex-column">
                 <Card.Title className="fs-6 fw-semibold mb-1">
-                  {owner.firstName} {owner.lastName}
+                  {owner.fullName}
                 </Card.Title>
                 <Card.Text className="text-muted small mb-1">{owner.email}</Card.Text>
                 <Card.Text className="text-muted small mb-0">{owner.phone}</Card.Text>
                 <div className="mt-auto pt-3">
                   <Button
                     as={Link}
-                    to={`/owners/${owner.id}`}
+                    to={`/owners/${owner.ownerId}`}
                     variant="outline-primary"
                     size="sm"
                   >
