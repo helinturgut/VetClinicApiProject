@@ -45,6 +45,7 @@ public static class SeedData
         }
 
         await EnsureIsApprovedColumnAsync(dbContext);
+        await EnsurePetColumnsAsync(dbContext);
         await SeedAdminUserAsync(userManager);
     }
 
@@ -105,6 +106,32 @@ public static class SeedData
 
         await dbContext.Database.ExecuteSqlRawAsync(
             $"ALTER TABLE {usersTable} ADD COLUMN {approvalColumn} INTEGER NOT NULL DEFAULT 1;");
+    }
+
+    private static async Task EnsurePetColumnsAsync(AppDbContext dbContext)
+    {
+        const string petsTable = "Pets";
+
+        var tableExists = await TableExistsAsync(dbContext, petsTable);
+        if (!tableExists) return;
+
+        var columnsToAdd = new[]
+        {
+            ("BirthDate", "TEXT", true),
+            ("Age",       "INTEGER", true),
+            ("Gender",    "TEXT",    true),
+            ("Weight",    "TEXT",    true),
+        };
+
+        foreach (var (column, sqlType, nullable) in columnsToAdd)
+        {
+            if (!await ColumnExistsAsync(dbContext, petsTable, column))
+            {
+                var nullClause = nullable ? "NULL" : "NOT NULL DEFAULT 0";
+                await dbContext.Database.ExecuteSqlRawAsync(
+                    $"ALTER TABLE {petsTable} ADD COLUMN {column} {sqlType} {nullClause};");
+            }
+        }
     }
 
     private static async Task SeedAdminUserAsync(UserManager<ApplicationUser> userManager)

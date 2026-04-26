@@ -40,4 +40,25 @@ public class DiagnosesController : ControllerBase
         _logger.LogInformation("Diagnosis created with ID {DiagnosisId} for visit {VisitId}", createdDiagnosis.DiagnosisId, visitId);
         return CreatedAtAction(nameof(GetDiagnosesByVisitId), new { visitId }, createdDiagnosis);
     }
+
+    [HttpPut("{diagnosisId:int}")]
+    [ProducesResponseType(typeof(DiagnosisDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<DiagnosisDto>> UpdateDiagnosis([FromRoute] int visitId, [FromRoute] int diagnosisId, [FromBody] CreateDiagnosisDto dto)
+    {
+        _logger.LogInformation("Updating diagnosis {DiagnosisId} for visit {VisitId}", diagnosisId, visitId);
+        var updated = await _diagnosisService.UpdateDiagnosisAsync(visitId, diagnosisId, dto);
+        return Ok(updated);
+    }
+
+    [HttpDelete("{diagnosisId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteDiagnosis([FromRoute] int visitId, [FromRoute] int diagnosisId)
+    {
+        _logger.LogInformation("Deleting diagnosis {DiagnosisId} from visit {VisitId}", diagnosisId, visitId);
+        await _diagnosisService.DeleteDiagnosisAsync(visitId, diagnosisId);
+        return NoContent();
+    }
 }

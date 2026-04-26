@@ -13,7 +13,8 @@ public class UpdatePetDto
     [StringLength(100)]
     public string? Breed { get; set; }
 
-    [Range(0, 50)]
+    public DateTime? BirthDate { get; set; }
+
     public int? Age { get; set; }
 
     [StringLength(10)]

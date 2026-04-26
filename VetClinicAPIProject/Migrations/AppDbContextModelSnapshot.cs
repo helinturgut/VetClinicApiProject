@@ -297,8 +297,11 @@ namespace VetClinicAPIProject.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Age")
+                    b.Property<int?>("Age")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Breed")
                         .HasMaxLength(100)
@@ -308,7 +311,6 @@ namespace VetClinicAPIProject.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Gender")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
@@ -328,7 +330,7 @@ namespace VetClinicAPIProject.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("Weight")
+                    b.Property<decimal?>("Weight")
                         .HasColumnType("TEXT");
 
                     b.HasKey("PetId");

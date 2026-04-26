@@ -15,13 +15,14 @@ public class CreatePetDto
     [StringLength(100)]
     public string? Breed { get; set; }
 
-    [Range(0, 50)]
-    public int Age { get; set; }
+    public DateTime? BirthDate { get; set; }
+
+    public int? Age { get; set; }
 
     [StringLength(10)]
     public string? Gender { get; set; }
 
-    public decimal Weight { get; set; }
+    public decimal? Weight { get; set; }
 
     [Required]
     public int OwnerId { get; set; }
