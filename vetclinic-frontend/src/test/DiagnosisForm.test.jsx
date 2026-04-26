@@ -2,12 +2,12 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import DiagnosisForm from '../components/visits/DiagnosisForm';
 
 describe('DiagnosisForm', () => {
-  // ── Rendering ─────────────────────────────────────────────────────────────
+  // Rendering
 
-  it('renders the Description and Notes fields', () => {
+  it('renders the Disease Name and Description fields', () => {
     render(<DiagnosisForm onSubmit={() => {}} isLoading={false} />);
-    expect(screen.getByLabelText('Description')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Notes/)).toBeInTheDocument();
+    expect(screen.getByLabelText('Disease Name')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Description/)).toBeInTheDocument();
   });
 
   it('renders the Add Diagnosis submit button', () => {
@@ -25,64 +25,64 @@ describe('DiagnosisForm', () => {
     expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
   });
 
-  // ── Validation ────────────────────────────────────────────────────────────
+  // Validation
 
-  it('shows a validation error when submitting with an empty description', () => {
+  it('shows a validation error when submitting with an empty disease name', () => {
     render(<DiagnosisForm onSubmit={() => {}} isLoading={false} />);
     fireEvent.click(screen.getByRole('button', { name: 'Add Diagnosis' }));
-    // Message appears in both the Alert and the field feedback element
-    expect(screen.getAllByText('Description is required.')).not.toHaveLength(0);
+    expect(screen.getAllByText('Disease Name is required.')).not.toHaveLength(0);
   });
 
-  it('does not call onSubmit when description is empty', () => {
+  it('does not call onSubmit when disease name is empty', () => {
     const handleSubmit = vi.fn();
     render(<DiagnosisForm onSubmit={handleSubmit} isLoading={false} />);
     fireEvent.click(screen.getByRole('button', { name: 'Add Diagnosis' }));
     expect(handleSubmit).not.toHaveBeenCalled();
   });
 
-  it('clears the validation error once the user starts typing a description', () => {
+  it('clears the validation error once the user starts typing a disease name', () => {
     render(<DiagnosisForm onSubmit={() => {}} isLoading={false} />);
     fireEvent.click(screen.getByRole('button', { name: 'Add Diagnosis' }));
-    expect(screen.getAllByText('Description is required.')).not.toHaveLength(0);
+    expect(screen.getAllByText('Disease Name is required.')).not.toHaveLength(0);
 
-    fireEvent.change(screen.getByLabelText('Description'), {
+    fireEvent.change(screen.getByLabelText('Disease Name'), {
       target: { value: 'Respiratory infection' },
     });
-    expect(screen.queryByText('Description is required.')).not.toBeInTheDocument();
+    expect(screen.queryByText('Disease Name is required.')).not.toBeInTheDocument();
   });
 
-  // ── Successful submission ─────────────────────────────────────────────────
+  // Successful submission 
 
   it('calls onSubmit with the correct values when the form is valid', () => {
     const handleSubmit = vi.fn();
     render(<DiagnosisForm onSubmit={handleSubmit} isLoading={false} />);
 
-    fireEvent.change(screen.getByLabelText('Description'), {
+    fireEvent.change(screen.getByLabelText('Disease Name'), {
       target: { value: 'Flu' },
     });
-    fireEvent.change(screen.getByLabelText(/Notes/), {
+    fireEvent.change(screen.getByLabelText(/Description/), {
       target: { value: 'Mild symptoms' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Add Diagnosis' }));
 
     expect(handleSubmit).toHaveBeenCalledWith({
-      description: 'Flu',
-      notes: 'Mild symptoms',
+      diseaseName: 'Flu',
+      description: 'Mild symptoms',
+      severity: '',
     });
   });
 
   it('resets the form to empty after a successful submission', () => {
     render(<DiagnosisForm onSubmit={() => {}} isLoading={false} />);
-    const descInput = screen.getByLabelText('Description');
+    const diseaseInput = screen.getByLabelText('Disease Name');
 
-    fireEvent.change(descInput, { target: { value: 'Flu' } });
+    fireEvent.change(diseaseInput, { target: { value: 'Flu' } });
     fireEvent.click(screen.getByRole('button', { name: 'Add Diagnosis' }));
 
-    expect(descInput.value).toBe('');
+    expect(diseaseInput.value).toBe('');
   });
 
-  // ── API error from props ──────────────────────────────────────────────────
+  // API error from props 
 
   it('displays an API error passed via the error prop', () => {
     render(
@@ -91,7 +91,7 @@ describe('DiagnosisForm', () => {
     expect(screen.getByText('Server error')).toBeInTheDocument();
   });
 
-  // ── Loading state ─────────────────────────────────────────────────────────
+  // Loading state
 
   it('shows "Adding…" and disables the button while isLoading is true', () => {
     render(<DiagnosisForm onSubmit={() => {}} isLoading={true} />);
