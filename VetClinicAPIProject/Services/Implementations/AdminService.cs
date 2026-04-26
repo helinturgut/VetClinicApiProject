@@ -23,6 +23,20 @@ public class AdminService : IAdminService
         _logger = logger;
     }
 
+    public async Task<IEnumerable<PendingVeterinarianDto>> GetApprovedVeterinariansAsync()
+    {
+        var veterinarians = await _userManager.GetUsersInRoleAsync(VeterinarianRole);
+        return veterinarians
+            .Where(user => user.IsApproved)
+            .Select(user => new PendingVeterinarianDto
+            {
+                UserId = user.Id,
+                Email = user.Email ?? string.Empty,
+                FullName = user.FullName
+            })
+            .ToList();
+    }
+
     public async Task<IEnumerable<PendingVeterinarianDto>> GetPendingVeterinariansAsync()
     {
         var veterinarians = await _userManager.GetUsersInRoleAsync(VeterinarianRole);
@@ -86,5 +100,75 @@ public class AdminService : IAdminService
             FullName = user.FullName,
             IsApproved = user.IsApproved
         };
+    }
+
+    public async Task RejectVeterinarianAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            _logger.LogWarning("Veterinarian rejection failed because user was not found: {UserId}", userId);
+            throw new KeyNotFoundException($"User not found with ID: {userId}");
+        }
+
+        var isVeterinarian = await _userManager.IsInRoleAsync(user, VeterinarianRole);
+        if (!isVeterinarian)
+        {
+            _logger.LogWarning(
+                "Veterinarian rejection failed because user {UserId} is not in role {Role}",
+                userId,
+                VeterinarianRole);
+            throw new InvalidOperationException("Only veterinarian accounts can be rejected.");
+        }
+
+        if (user.IsApproved)
+        {
+            _logger.LogWarning("Cannot reject an already-approved veterinarian: {UserId}", userId);
+            throw new InvalidOperationException("Cannot reject an already-approved veterinarian account.");
+        }
+
+        var email = user.Email ?? string.Empty;
+        var fullName = user.FullName;
+
+        var deleteResult = await _userManager.DeleteAsync(user);
+        if (!deleteResult.Succeeded)
+        {
+            var errors = string.Join("; ", deleteResult.Errors.Select(e => e.Description));
+            _logger.LogError("Failed to reject veterinarian {UserId}. Errors: {Errors}", userId, errors);
+            throw new InvalidOperationException(errors);
+        }
+
+        _logger.LogInformation("Veterinarian account rejected and deleted for user {UserId}", userId);
+        await _emailService.SendRejectionEmailAsync(email, fullName);
+    }
+
+    public async Task DeleteVeterinarianAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            _logger.LogWarning("Veterinarian deletion failed because user was not found: {UserId}", userId);
+            throw new KeyNotFoundException($"User not found with ID: {userId}");
+        }
+
+        var isVeterinarian = await _userManager.IsInRoleAsync(user, VeterinarianRole);
+        if (!isVeterinarian)
+        {
+            _logger.LogWarning(
+                "Veterinarian deletion failed because user {UserId} is not in role {Role}",
+                userId,
+                VeterinarianRole);
+            throw new InvalidOperationException("Only veterinarian accounts can be deleted this way.");
+        }
+
+        var deleteResult = await _userManager.DeleteAsync(user);
+        if (!deleteResult.Succeeded)
+        {
+            var errors = string.Join("; ", deleteResult.Errors.Select(e => e.Description));
+            _logger.LogError("Failed to delete veterinarian {UserId}. Errors: {Errors}", userId, errors);
+            throw new InvalidOperationException(errors);
+        }
+
+        _logger.LogInformation("Veterinarian account deleted for user {UserId}", userId);
     }
 }

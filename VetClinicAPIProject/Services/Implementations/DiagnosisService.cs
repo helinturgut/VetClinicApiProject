@@ -65,6 +65,48 @@ public class DiagnosisService : IDiagnosisService
         return MapDiagnosisToDto(diagnosis);
     }
 
+    public async Task<DiagnosisDto> UpdateDiagnosisAsync(int visitId, int diagnosisId, CreateDiagnosisDto dto)
+    {
+        var visit = await _visitRepository.GetByIdAsync(visitId);
+        if (visit is null)
+        {
+            _logger.LogWarning("Diagnosis update failed because visit {VisitId} does not exist", visitId);
+            throw new KeyNotFoundException($"Visit not found with ID: {visitId}");
+        }
+
+        var diagnosis = await _diagnosisRepository.GetByIdAsync(diagnosisId);
+        if (diagnosis is null || diagnosis.VisitId != visitId)
+        {
+            _logger.LogWarning("Diagnosis {DiagnosisId} not found for visit {VisitId}", diagnosisId, visitId);
+            throw new KeyNotFoundException($"Diagnosis not found with ID: {diagnosisId}");
+        }
+
+        diagnosis.DiseaseName = dto.DiseaseName;
+        diagnosis.Description = dto.Description;
+        diagnosis.Severity = dto.Severity;
+
+        _diagnosisRepository.Update(diagnosis);
+        await _diagnosisRepository.SaveChangesAsync();
+
+        _logger.LogInformation("Updated diagnosis {DiagnosisId} for visit {VisitId}", diagnosisId, visitId);
+        return MapDiagnosisToDto(diagnosis);
+    }
+
+    public async Task DeleteDiagnosisAsync(int visitId, int diagnosisId)
+    {
+        var diagnosis = await _diagnosisRepository.GetByIdAsync(diagnosisId);
+        if (diagnosis is null || diagnosis.VisitId != visitId)
+        {
+            _logger.LogWarning("Diagnosis {DiagnosisId} not found for visit {VisitId}", diagnosisId, visitId);
+            throw new KeyNotFoundException($"Diagnosis not found with ID: {diagnosisId}");
+        }
+
+        _diagnosisRepository.Remove(diagnosis);
+        await _diagnosisRepository.SaveChangesAsync();
+
+        _logger.LogInformation("Deleted diagnosis {DiagnosisId} from visit {VisitId}", diagnosisId, visitId);
+    }
+
     private static DiagnosisDto MapDiagnosisToDto(Diagnosis diagnosis)
     {
         return new DiagnosisDto

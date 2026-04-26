@@ -90,6 +90,44 @@ public class AuthService : IAuthService
         };
     }
 
+    public async Task ForgotPasswordAsync(ForgotPasswordDto dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        // Always return silently — never reveal whether the email exists
+        if (user is null)
+        {
+            _logger.LogInformation("Forgot-password request for unknown email {Email} — ignoring", dto.Email);
+            return;
+        }
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var encodedToken = Uri.EscapeDataString(token);
+        var encodedEmail = Uri.EscapeDataString(dto.Email);
+
+        var frontendBase = _configuration["AppSettings:FrontendBaseUrl"] ?? "http://localhost:5173";
+        var resetLink = $"{frontendBase}/reset-password?token={encodedToken}&email={encodedEmail}";
+
+        _logger.LogInformation("Sending password reset email to {Email}", dto.Email);
+        await _emailService.SendPasswordResetEmailAsync(dto.Email, user.FullName, resetLink);
+    }
+
+    public async Task ResetPasswordAsync(ResetPasswordDto dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user is null)
+            throw new InvalidOperationException("Invalid password reset request.");
+
+        var result = await _userManager.ResetPasswordAsync(user, dto.Token, dto.NewPassword);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+            _logger.LogWarning("Password reset failed for {Email}: {Errors}", dto.Email, errors);
+            throw new InvalidOperationException(errors);
+        }
+
+        _logger.LogInformation("Password reset successfully for {Email}", dto.Email);
+    }
+
     public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);

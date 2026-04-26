@@ -19,6 +19,15 @@ public class AdminController : ControllerBase
         _logger = logger;
     }
 
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<PendingVeterinarianDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<PendingVeterinarianDto>>> GetApprovedVeterinarians()
+    {
+        _logger.LogInformation("Fetching all approved veterinarians");
+        var vets = await _adminService.GetApprovedVeterinariansAsync();
+        return Ok(vets);
+    }
+
     [HttpGet("pending")]
     [ProducesResponseType(typeof(IEnumerable<PendingVeterinarianDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<PendingVeterinarianDto>>> GetPendingVeterinarians()
@@ -39,5 +48,29 @@ public class AdminController : ControllerBase
         var approvedVeterinarian = await _adminService.ApproveVeterinarianAsync(userId);
         _logger.LogInformation("Veterinarian {UserId} approved successfully", userId);
         return Ok(approvedVeterinarian);
+    }
+
+    [HttpDelete("{userId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeleteVeterinarian(string userId)
+    {
+        _logger.LogInformation("Deleting veterinarian with ID {UserId}", userId);
+        await _adminService.DeleteVeterinarianAsync(userId);
+        _logger.LogInformation("Veterinarian {UserId} deleted successfully", userId);
+        return NoContent();
+    }
+
+    [HttpDelete("{userId}/reject")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RejectVeterinarian(string userId)
+    {
+        _logger.LogInformation("Rejecting veterinarian with ID {UserId}", userId);
+        await _adminService.RejectVeterinarianAsync(userId);
+        _logger.LogInformation("Veterinarian {UserId} rejected and deleted successfully", userId);
+        return NoContent();
     }
 }

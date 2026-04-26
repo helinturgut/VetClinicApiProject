@@ -35,6 +35,16 @@ public class TreatmentRepository : ITreatmentRepository
         await _context.Treatments.AddAsync(treatment);
     }
 
+    public void Update(Treatment treatment)
+    {
+        _context.Update(treatment);
+    }
+
+    public void Remove(Treatment treatment)
+    {
+        _context.Treatments.Remove(treatment);
+    }
+
     public async Task<bool> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync() > 0;

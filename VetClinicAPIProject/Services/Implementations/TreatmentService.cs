@@ -67,6 +67,50 @@ public class TreatmentService : ITreatmentService
         return MapTreatmentToDto(treatment);
     }
 
+    public async Task<TreatmentDto> UpdateTreatmentAsync(int visitId, int treatmentId, CreateTreatmentDto dto)
+    {
+        var visit = await _visitRepository.GetByIdAsync(visitId);
+        if (visit is null)
+        {
+            _logger.LogWarning("Treatment update failed because visit {VisitId} does not exist", visitId);
+            throw new KeyNotFoundException($"Visit not found with ID: {visitId}");
+        }
+
+        var treatment = await _treatmentRepository.GetByIdAsync(treatmentId);
+        if (treatment is null || treatment.VisitId != visitId)
+        {
+            _logger.LogWarning("Treatment {TreatmentId} not found for visit {VisitId}", treatmentId, visitId);
+            throw new KeyNotFoundException($"Treatment not found with ID: {treatmentId}");
+        }
+
+        treatment.TreatmentName = dto.TreatmentName;
+        treatment.Medication = dto.Medication;
+        treatment.Dosage = dto.Dosage;
+        treatment.Instructions = dto.Instructions;
+        treatment.Cost = dto.Cost;
+
+        _treatmentRepository.Update(treatment);
+        await _treatmentRepository.SaveChangesAsync();
+
+        _logger.LogInformation("Updated treatment {TreatmentId} for visit {VisitId}", treatmentId, visitId);
+        return MapTreatmentToDto(treatment);
+    }
+
+    public async Task DeleteTreatmentAsync(int visitId, int treatmentId)
+    {
+        var treatment = await _treatmentRepository.GetByIdAsync(treatmentId);
+        if (treatment is null || treatment.VisitId != visitId)
+        {
+            _logger.LogWarning("Treatment {TreatmentId} not found for visit {VisitId}", treatmentId, visitId);
+            throw new KeyNotFoundException($"Treatment not found with ID: {treatmentId}");
+        }
+
+        _treatmentRepository.Remove(treatment);
+        await _treatmentRepository.SaveChangesAsync();
+
+        _logger.LogInformation("Deleted treatment {TreatmentId} from visit {VisitId}", treatmentId, visitId);
+    }
+
     private static TreatmentDto MapTreatmentToDto(Treatment treatment)
     {
         return new TreatmentDto
