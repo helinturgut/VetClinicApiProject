@@ -1,24 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { login, clearError } from '../../store/slices/authSlice';
 import { useAuth } from '../../hooks/useAuth';
+import logo from '../../assets/logo.png';
+import authBg from '../../assets/auth-bg.png';
 
 export default function LoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoading, error, token } = useAuth();
+  const resetSuccess = location.state?.resetSuccess ?? false;
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [validated, setValidated] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (token) navigate('/dashboard', { replace: true });
   }, [token, navigate]);
 
- 
   useEffect(() => {
     return () => dispatch(clearError());
   }, [dispatch]);
@@ -35,13 +38,26 @@ export default function LoginPage() {
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+    <Container
+      fluid
+      className="d-flex justify-content-center align-items-center min-vh-100 auth-bg-container"
+      style={{ backgroundImage: `url(${authBg})` }}
+    >
       <Row className="w-100 justify-content-center">
         <Col xs={12} sm={9} md={6} lg={4}>
           <Card className="shadow-sm border-0">
             <Card.Body className="p-4">
-              <h4 className="mb-1 fw-bold text-center">VetClinic</h4>
+              <div className="text-center mb-2">
+                <img src={logo} alt="VetClinic" style={{ height: 90, objectFit: 'contain' }} />
+              </div>
+              <h4 className="fw-bold text-center mb-1">VetClinic</h4>
               <p className="text-muted text-center small mb-4">Sign in to your account</p>
+
+              {resetSuccess && (
+                <Alert variant="success">
+                  Password reset successfully. You can now sign in with your new password.
+                </Alert>
+              )}
 
               {error && (
                 <Alert variant="danger" dismissible onClose={() => dispatch(clearError())}>
@@ -67,28 +83,36 @@ export default function LoginPage() {
                 </Form.Group>
 
                 <Form.Group className="mb-4">
-                  <Form.Label>Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                    minLength={8}
-                    placeholder="Min. 8 characters"
-                    autoComplete="current-password"
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Password must be at least 8 characters.
-                  </Form.Control.Feedback>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <Form.Label className="mb-0">Password</Form.Label>
+                    <Link to="/forgot-password" className="small">Forgot password?</Link>
+                  </div>
+                  <InputGroup>
+                    <Form.Control
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      value={form.password}
+                      onChange={handleChange}
+                      required
+                      minLength={8}
+                      placeholder="Min. 8 characters"
+                      autoComplete="current-password"
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => setShowPassword((v) => !v)}
+                      tabIndex={-1}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? '🙈' : '👁'}
+                    </Button>
+                    <Form.Control.Feedback type="invalid">
+                      Password must be at least 8 characters.
+                    </Form.Control.Feedback>
+                  </InputGroup>
                 </Form.Group>
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="w-100"
-                  disabled={isLoading}
-                >
+                <Button type="submit" variant="primary" className="w-100" disabled={isLoading}>
                   {isLoading ? 'Signing in...' : 'Sign In'}
                 </Button>
               </Form>

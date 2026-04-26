@@ -1,0 +1,169 @@
+import { useEffect, useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Container, Card, Button, Alert, Badge } from 'react-bootstrap';
+import {
+  fetchPet, updatePet, deletePet, clearSelected, clearError,
+} from '../../store/slices/petsSlice';
+import { fetchOwners } from '../../store/slices/ownersSlice';
+import { useAuth } from '../../hooks/useAuth';
+import PetForm from '../../components/pets/PetForm';
+import ConfirmModal from '../../components/ui/ConfirmModal';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import PageLoadError from '../../components/ui/PageLoadError';
+import { SPECIES_BADGE } from '../../constants/badges';
+
+export default function PetDetailPage() {
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isAdmin, isVet } = useAuth();
+  const { selected, isLoading, error } = useSelector((s) => s.pets);
+  const { list: owners } = useSelector((s) => s.owners);
+  const [editing, setEditing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const canDelete = isAdmin || isVet;
+
+  useEffect(() => {
+    dispatch(fetchPet(id));
+    dispatch(fetchOwners());
+    return () => dispatch(clearSelected());
+  }, [dispatch, id]);
+
+  const startEdit = () => {
+    dispatch(clearError());
+    setEditing(true);
+  };
+
+  const cancelEdit = () => {
+    dispatch(clearError());
+    setEditing(false);
+  };
+
+  const handleUpdate = async (data) => {
+    const result = await dispatch(updatePet({ id, data }));
+    if (updatePet.fulfilled.match(result)) setEditing(false);
+  };
+
+  const handleDelete = async () => {
+    const result = await dispatch(deletePet(id));
+    if (deletePet.fulfilled.match(result)) navigate('/pets', { replace: true });
+  };
+
+  const ownerName = () => {
+    const owner = owners.find((o) => o.ownerId === selected?.ownerId);
+    return owner ? owner.fullName : (selected?.ownerName || '—');
+  };
+
+  if (isLoading && !selected) return <LoadingSpinner />;
+
+  if (!isLoading && error && !selected) {
+    return <PageLoadError message={error} backTo="/pets" backLabel="Back to Pets" />;
+  }
+
+  if (!selected) return null;
+
+  return (
+    <Container className="py-4" style={{ maxWidth: 680 }}>
+      <div className="d-flex align-items-center gap-3 mb-4 flex-wrap">
+        <Button as={Link} to="/pets" variant="outline-secondary" size="sm">
+          ← Back
+        </Button>
+        <h4 className="fw-bold mb-0">{selected.name}</h4>
+        <Badge bg={SPECIES_BADGE[selected.species] ?? 'secondary'}>
+          {selected.species}
+        </Badge>
+      </div>
+
+      {error && editing && <Alert variant="danger">{error}</Alert>}
+
+      {editing ? (
+        <Card className="shadow-sm border-0 p-4">
+          <PetForm
+            initialValues={{
+              ...selected,
+              birthDate: selected.birthDate ? selected.birthDate.slice(0, 10) : '',
+              gender: selected.gender ?? '',
+              weight: selected.weight ?? '',
+            }}
+            onSubmit={handleUpdate}
+            onCancel={cancelEdit}
+            isLoading={isLoading}
+            error={null}
+            owners={owners}
+          />
+        </Card>
+      ) : (
+        <Card className="shadow-sm border-0">
+          <Card.Body className="p-4">
+            <dl className="row mb-0 detail-list">
+              <dt className="col-sm-4 text-muted fw-normal">Name</dt>
+              <dd className="col-sm-8 fw-semibold">{selected.name}</dd>
+
+              <dt className="col-sm-4 text-muted fw-normal">Species</dt>
+              <dd className="col-sm-8">{selected.species}</dd>
+
+              <dt className="col-sm-4 text-muted fw-normal">Breed</dt>
+              <dd className="col-sm-8">{selected.breed || '—'}</dd>
+
+              <dt className="col-sm-4 text-muted fw-normal">Date of Birth</dt>
+              <dd className="col-sm-8">
+                {selected.birthDate
+                  ? new Date(selected.birthDate).toLocaleDateString()
+                  : '—'}
+              </dd>
+
+<dt className="col-sm-4 text-muted fw-normal">Gender</dt>
+              <dd className="col-sm-8">{selected.gender || '—'}</dd>
+
+              <dt className="col-sm-4 text-muted fw-normal">Weight</dt>
+              <dd className="col-sm-8">{selected.weight != null ? `${selected.weight} kg` : '—'}</dd>
+
+              <dt className="col-sm-4 text-muted fw-normal">Owner</dt>
+              <dd className="col-sm-8 mb-0">
+                {selected.ownerId ? (
+                  <Link to={`/owners/${selected.ownerId}`}>{ownerName()}</Link>
+                ) : (
+                  ownerName()
+                )}
+              </dd>
+            </dl>
+
+            <div className="d-flex gap-2 mt-4 flex-wrap">
+              <Button variant="primary" size="sm" onClick={startEdit}>
+                Edit Pet
+              </Button>
+              <Button
+                as={Link}
+                to={`/pets/${selected.petId}/history`}
+                variant="outline-secondary"
+                size="sm"
+              >
+                Visit History
+              </Button>
+              {canDelete && (
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={() => setShowDeleteModal(true)}
+                >
+                  Delete Pet
+                </Button>
+              )}
+            </div>
+          </Card.Body>
+        </Card>
+      )}
+
+      <ConfirmModal
+        show={showDeleteModal}
+        title="Delete Pet"
+        body={<>Are you sure you want to delete <strong>{selected.name}</strong>? This action cannot be undone.</>}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+        isLoading={isLoading}
+      />
+    </Container>
+  );
+}

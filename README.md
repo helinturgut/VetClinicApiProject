@@ -1,4 +1,52 @@
-# VetClinic API Project
+# VetClinic
+
+Full-stack veterinary clinic management system — React SPA frontend + ASP.NET Core 8 REST API, with role-based access control, JWT authentication, and CI/CD via GitHub Actions.
+
+## Frontend (React SPA)
+
+Built with React 18, Vite, Redux Toolkit, React Router v6, and React Bootstrap.
+
+### Local setup
+
+```bash
+cd vetclinic-frontend
+npm install
+```
+
+Create `.env` in `vetclinic-frontend/`:
+
+```dotenv
+VITE_API_BASE_URL=http://localhost:5002
+```
+
+Start the dev server:
+
+```bash
+npm run dev        # http://localhost:5173
+npm test           # run Vitest unit tests
+npm run build      # production build → dist/
+```
+
+### Deployment (Netlify)
+
+The frontend deploys automatically to Netlify on every push to `main` via the `frontend-ci-cd.yml` workflow. Two GitHub secrets are required:
+
+| Secret | Description |
+|---|---|
+| `NETLIFY_AUTH_TOKEN` | Personal access token from Netlify dashboard → User settings → Applications |
+| `NETLIFY_SITE_ID` | Site ID from Netlify dashboard → Site configuration → General |
+
+One GitHub variable is required:
+
+| Variable | Description |
+|---|---|
+| `VITE_API_BASE_URL` | Public URL of the deployed backend API |
+
+`netlify.toml` in the repository root configures the build settings and the SPA redirect rule so React Router works on page refresh.
+
+---
+
+# VetClinic API (Backend)
 
 ASP.NET Core 8 Web API for managing a veterinary clinic workflow with JWT authentication, role-based access control, layered architecture, SQLite persistence, Swagger documentation, unit tests, Docker support, and CI/CD via GitHub Actions.
 
@@ -248,6 +296,18 @@ Required GitHub variables/secrets are validated in workflow steps before deploym
 ```text
 Project/
   .github/workflows/
+    ci-cd.yml               # backend CI + Docker + Azure deploy
+    frontend-ci-cd.yml      # frontend test + build + Netlify deploy
+  vetclinic-frontend/
+    src/
+      components/           # reusable UI components
+      pages/                # route-level page components
+      store/                # Redux slices and store
+      services/             # Axios API clients
+      hooks/                # custom React hooks
+      test/                 # Vitest unit tests
+    vite.config.js
+    package.json
   VetClinicAPIProject/
     Controllers/
     Data/
@@ -262,6 +322,7 @@ Project/
     .env.example
   VetClinicAPIProject.Tests/
     Services/
+  netlify.toml
   Project.sln
 ```
 

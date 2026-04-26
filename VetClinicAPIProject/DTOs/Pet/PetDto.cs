@@ -6,9 +6,11 @@ public class PetDto
     public string Name { get; set; } = string.Empty;
     public string Species { get; set; } = string.Empty;
     public string? Breed { get; set; }
-    public int Age { get; set; }
-    public string Gender { get; set; } = string.Empty;
-    public decimal Weight { get; set; }
+    public DateTime? BirthDate { get; set; }
+    public int? Age { get; set; }
+    public string? Gender { get; set; }
+    public decimal? Weight { get; set; }
+    public int OwnerId { get; set; }
     public string OwnerName { get; set; } = string.Empty;
     public DateTime? LastCheckInDate { get; set; }
     public DateTime CreatedAt { get; set; }

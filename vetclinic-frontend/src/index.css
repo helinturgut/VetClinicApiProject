@@ -1,13 +1,164 @@
+/* ── Global ── */
 body {
-  background-color: #f8f9fa;
+  background-color: #f4f6f9;
+  min-height: 100vh;
 }
 
+/* ── Layout ── */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Card hover animation ── */
 .card-hover {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   cursor: pointer;
 }
 
 .card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Disable lift on touch-only devices — tap highlight is sufficient */
+@media (hover: none) {
+  .card-hover:hover {
+    transform: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  }
+}
+
+/* ── Active nav link ── */
+.navbar .nav-link.active {
+  color: #0d6efd !important;
+  font-weight: 600;
+  border-bottom: 2px solid #0d6efd;
+}
+
+/* ── Dashboard icon cards ── */
+.dash-icon {
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* ── Page header ── */
+.page-header {
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* ── Detail list (dl/dd) ── */
+.detail-list dt {
+  font-weight: 400;
+  color: #6c757d;
+}
+
+.detail-list dd {
+  font-weight: 500;
+  margin-bottom: 0.6rem;
+}
+
+/* ── Tabs polish ── */
+.nav-tabs .nav-link {
+  color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+  font-weight: 600;
+  border-bottom: none;
+}
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+}
+
+.empty-state-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  display: block;
+  opacity: 0.4;
+}
+
+/* ── Search bar: full-width on mobile, capped at 360 px on sm+ ── */
+.search-bar-wrap {
+  max-width: 360px;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Auth pages background ── */
+.auth-bg-container {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ── Dashboard background ── */
+.dashboard-bg {
+  flex: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ── Responsive tweaks ── */
+@media (max-width: 575px) {
+  .search-bar-wrap {
+    max-width: 100%;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+
+  .detail-list dt,
+  .detail-list dd {
+    width: 100%;
+  }
+
+  .detail-list dt {
+    margin-bottom: 0;
+  }
+
+  .detail-list dd {
+    padding-left: 0;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Scroll tabs horizontally instead of wrapping on very small screens */
+  .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Ensure tab panels have breathing room */
+  .tab-content {
+    padding-top: 0.25rem;
+  }
+
+  /* Auth card: reduce padding on mobile */
+  .card .card-body.p-4 {
+    padding: 1.25rem !important;
+  }
 }

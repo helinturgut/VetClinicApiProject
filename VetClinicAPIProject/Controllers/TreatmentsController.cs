@@ -40,4 +40,25 @@ public class TreatmentsController : ControllerBase
         _logger.LogInformation("Treatment created with ID {TreatmentId} for visit {VisitId}", createdTreatment.TreatmentId, visitId);
         return CreatedAtAction(nameof(GetTreatmentsByVisitId), new { visitId }, createdTreatment);
     }
+
+    [HttpPut("{treatmentId:int}")]
+    [ProducesResponseType(typeof(TreatmentDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<TreatmentDto>> UpdateTreatment([FromRoute] int visitId, [FromRoute] int treatmentId, [FromBody] CreateTreatmentDto dto)
+    {
+        _logger.LogInformation("Updating treatment {TreatmentId} for visit {VisitId}", treatmentId, visitId);
+        var updated = await _treatmentService.UpdateTreatmentAsync(visitId, treatmentId, dto);
+        return Ok(updated);
+    }
+
+    [HttpDelete("{treatmentId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteTreatment([FromRoute] int visitId, [FromRoute] int treatmentId)
+    {
+        _logger.LogInformation("Deleting treatment {TreatmentId} from visit {VisitId}", treatmentId, visitId);
+        await _treatmentService.DeleteTreatmentAsync(visitId, treatmentId);
+        return NoContent();
+    }
 }

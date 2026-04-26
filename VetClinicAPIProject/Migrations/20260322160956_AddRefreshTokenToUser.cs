@@ -187,9 +187,10 @@ namespace VetClinicAPIProject.Migrations
                     Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     Species = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     Breed = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    Age = table.Column<int>(type: "INTEGER", nullable: false),
-                    Gender = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
-                    Weight = table.Column<decimal>(type: "TEXT", nullable: false),
+                    BirthDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    Age = table.Column<int>(type: "INTEGER", nullable: true),
+                    Gender = table.Column<string>(type: "TEXT", maxLength: 10, nullable: true),
+                    Weight = table.Column<decimal>(type: "TEXT", nullable: true),
                     OwnerId = table.Column<int>(type: "INTEGER", nullable: false),
                     LastCheckInDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)

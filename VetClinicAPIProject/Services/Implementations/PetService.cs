@@ -67,8 +67,9 @@ public class PetService : IPetService
             Name = dto.Name,
             Species = dto.Species,
             Breed = dto.Breed,
+            BirthDate = dto.BirthDate,
             Age = dto.Age,
-            Gender = dto.Gender ?? string.Empty,
+            Gender = dto.Gender,
             Weight = dto.Weight,
             OwnerId = dto.OwnerId
         };
@@ -118,6 +119,12 @@ public class PetService : IPetService
         if (dto.Breed != pet.Breed)
         {
             pet.Breed = dto.Breed;
+            hasChanges = true;
+        }
+
+        if (dto.BirthDate.HasValue && dto.BirthDate.Value != pet.BirthDate)
+        {
+            pet.BirthDate = dto.BirthDate.Value;
             hasChanges = true;
         }
 
@@ -192,9 +199,11 @@ public class PetService : IPetService
             Name = pet.Name,
             Species = pet.Species,
             Breed = pet.Breed,
+            BirthDate = pet.BirthDate,
             Age = pet.Age,
             Gender = pet.Gender,
             Weight = pet.Weight,
+            OwnerId = pet.OwnerId,
             OwnerName = pet.Owner?.FullName ?? string.Empty,
             LastCheckInDate = pet.LastCheckInDate,
             CreatedAt = pet.CreatedAt,
@@ -214,9 +223,11 @@ public class PetService : IPetService
             Name = pet.Name,
             Species = pet.Species,
             Breed = pet.Breed,
+            BirthDate = pet.BirthDate,
             Age = pet.Age,
             Gender = pet.Gender,
             Weight = pet.Weight,
+            OwnerId = pet.OwnerId,
             OwnerName = pet.Owner?.FullName ?? string.Empty,
             LastCheckInDate = pet.LastCheckInDate,
             CreatedAt = pet.CreatedAt

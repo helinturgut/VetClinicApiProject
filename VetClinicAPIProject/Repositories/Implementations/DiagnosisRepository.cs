@@ -35,6 +35,16 @@ public class DiagnosisRepository : IDiagnosisRepository
         await _context.Diagnoses.AddAsync(diagnosis);
     }
 
+    public void Update(Diagnosis diagnosis)
+    {
+        _context.Update(diagnosis);
+    }
+
+    public void Remove(Diagnosis diagnosis)
+    {
+        _context.Diagnoses.Remove(diagnosis);
+    }
+
     public async Task<bool> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync() > 0;

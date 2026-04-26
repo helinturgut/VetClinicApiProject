@@ -17,6 +17,16 @@ const authService = {
     const response = await axios.post(`${BASE_URL}/api/auth/refresh`, { token, refreshToken });
     return response.data;
   },
+
+  forgotPassword: async (email) => {
+    const response = await axios.post(`${BASE_URL}/api/auth/forgot-password`, { email });
+    return response.data;
+  },
+
+  resetPassword: async (email, token, newPassword) => {
+    const response = await axios.post(`${BASE_URL}/api/auth/reset-password`, { email, token, newPassword });
+    return response.data;
+  },
 };
 
 export default authService;
