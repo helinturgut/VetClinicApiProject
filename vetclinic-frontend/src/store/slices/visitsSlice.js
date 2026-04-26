@@ -81,6 +81,40 @@ export const addTreatment = createAsyncThunk('visits/addTreatment', async ({ vis
   }
 });
 
+export const updateDiagnosis = createAsyncThunk('visits/updateDiagnosis', async ({ visitId, diagnosisId, data }, thunkAPI) => {
+  try {
+    return await visitsService.updateDiagnosis(visitId, diagnosisId, data);
+  } catch (err) {
+    return thunkAPI.rejectWithValue(extractMessage(err));
+  }
+});
+
+export const deleteDiagnosis = createAsyncThunk('visits/deleteDiagnosis', async ({ visitId, diagnosisId }, thunkAPI) => {
+  try {
+    await visitsService.deleteDiagnosis(visitId, diagnosisId);
+    return diagnosisId;
+  } catch (err) {
+    return thunkAPI.rejectWithValue(extractMessage(err));
+  }
+});
+
+export const updateTreatment = createAsyncThunk('visits/updateTreatment', async ({ visitId, treatmentId, data }, thunkAPI) => {
+  try {
+    return await visitsService.updateTreatment(visitId, treatmentId, data);
+  } catch (err) {
+    return thunkAPI.rejectWithValue(extractMessage(err));
+  }
+});
+
+export const deleteTreatment = createAsyncThunk('visits/deleteTreatment', async ({ visitId, treatmentId }, thunkAPI) => {
+  try {
+    await visitsService.deleteTreatment(visitId, treatmentId);
+    return treatmentId;
+  } catch (err) {
+    return thunkAPI.rejectWithValue(extractMessage(err));
+  }
+});
+
 const pending = (state) => {
   state.isLoading = true;
   state.error = null;
@@ -177,7 +211,37 @@ const visitsSlice = createSlice({
         state.isLoading = false;
         state.treatments.push(action.payload);
       })
-      .addCase(addTreatment.rejected, rejected);
+      .addCase(addTreatment.rejected, rejected)
+
+      .addCase(updateDiagnosis.pending, pending)
+      .addCase(updateDiagnosis.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const idx = state.diagnoses.findIndex((d) => d.diagnosisId === action.payload.diagnosisId);
+        if (idx !== -1) state.diagnoses[idx] = action.payload;
+      })
+      .addCase(updateDiagnosis.rejected, rejected)
+
+      .addCase(deleteDiagnosis.pending, pending)
+      .addCase(deleteDiagnosis.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.diagnoses = state.diagnoses.filter((d) => d.diagnosisId !== action.payload);
+      })
+      .addCase(deleteDiagnosis.rejected, rejected)
+
+      .addCase(updateTreatment.pending, pending)
+      .addCase(updateTreatment.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const idx = state.treatments.findIndex((t) => t.treatmentId === action.payload.treatmentId);
+        if (idx !== -1) state.treatments[idx] = action.payload;
+      })
+      .addCase(updateTreatment.rejected, rejected)
+
+      .addCase(deleteTreatment.pending, pending)
+      .addCase(deleteTreatment.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.treatments = state.treatments.filter((t) => t.treatmentId !== action.payload);
+      })
+      .addCase(deleteTreatment.rejected, rejected);
   },
 });
 
