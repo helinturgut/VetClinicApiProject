@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { login, clearError } from '../../store/slices/authSlice';
 import { useAuth } from '../../hooks/useAuth';
@@ -10,7 +10,9 @@ import authBg from '../../assets/auth-bg.png';
 export default function LoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoading, error, token } = useAuth();
+  const resetSuccess = location.state?.resetSuccess ?? false;
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [validated, setValidated] = useState(false);
@@ -51,6 +53,12 @@ export default function LoginPage() {
               <h4 className="fw-bold text-center mb-1">VetClinic</h4>
               <p className="text-muted text-center small mb-4">Sign in to your account</p>
 
+              {resetSuccess && (
+                <Alert variant="success">
+                  Password reset successfully. You can now sign in with your new password.
+                </Alert>
+              )}
+
               {error && (
                 <Alert variant="danger" dismissible onClose={() => dispatch(clearError())}>
                   {error}
@@ -75,7 +83,10 @@ export default function LoginPage() {
                 </Form.Group>
 
                 <Form.Group className="mb-4">
-                  <Form.Label>Password</Form.Label>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <Form.Label className="mb-0">Password</Form.Label>
+                    <Link to="/forgot-password" className="small">Forgot password?</Link>
+                  </div>
                   <InputGroup>
                     <Form.Control
                       type={showPassword ? 'text' : 'password'}

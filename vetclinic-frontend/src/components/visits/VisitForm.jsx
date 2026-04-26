@@ -12,9 +12,22 @@ export default function VisitForm({ initialValues, onSubmit, onCancel, isLoading
     setValues(initialValues ?? EMPTY);
   }, [initialValues]);
 
+  const today = new Date().toISOString().slice(0, 10);
+
+  const dateMin = values.status === 'Scheduled' ? today : undefined;
+  const dateMax = values.status === 'Completed' ? today : undefined;
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setValues((v) => ({ ...v, [name]: value }));
+    setValues((v) => {
+      const updated = { ...v, [name]: value };
+      if (name === 'status') {
+        const d = v.visitDate ? v.visitDate.slice(0, 10) : '';
+        if (value === 'Scheduled' && d && d < today) updated.visitDate = '';
+        if (value === 'Completed' && d && d > today) updated.visitDate = '';
+      }
+      return updated;
+    });
   };
 
   const handleSubmit = (e) => {
@@ -50,6 +63,8 @@ export default function VisitForm({ initialValues, onSubmit, onCancel, isLoading
               name="visitDate"
               value={values.visitDate ? values.visitDate.slice(0, 10) : ''}
               onChange={handleChange}
+              min={dateMin}
+              max={dateMax}
               required
             />
           </Form.Group>

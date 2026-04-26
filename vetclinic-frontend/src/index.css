@@ -13,6 +13,8 @@ body {
 
 main {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── Card hover animation ── */
@@ -36,9 +38,9 @@ main {
 
 /* ── Active nav link ── */
 .navbar .nav-link.active {
-  color: #fff !important;
+  color: #0d6efd !important;
   font-weight: 600;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.7);
+  border-bottom: 2px solid #0d6efd;
 }
 
 /* ── Dashboard icon cards ── */
@@ -95,6 +97,21 @@ main {
 .search-bar-wrap {
   max-width: 360px;
   margin-bottom: 1.5rem;
+}
+
+/* ── Auth pages background ── */
+.auth-bg-container {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ── Dashboard background ── */
+.dashboard-bg {
+  flex: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* ── Responsive tweaks ── */

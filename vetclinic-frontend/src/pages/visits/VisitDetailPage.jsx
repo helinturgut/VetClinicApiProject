@@ -7,8 +7,8 @@ import {
 } from 'react-bootstrap';
 import {
   fetchVisit, updateVisit, deleteVisit,
-  fetchDiagnoses, addDiagnosis,
-  fetchTreatments, addTreatment,
+  fetchDiagnoses, addDiagnosis, updateDiagnosis, deleteDiagnosis,
+  fetchTreatments, addTreatment, updateTreatment, deleteTreatment,
   clearSelected, clearError,
 } from '../../store/slices/visitsSlice';
 import { fetchPets } from '../../store/slices/petsSlice';
@@ -33,6 +33,10 @@ export default function VisitDetailPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDiagForm, setShowDiagForm] = useState(false);
   const [showTreatForm, setShowTreatForm] = useState(false);
+  const [editingDiagId, setEditingDiagId] = useState(null);
+  const [deletingDiagId, setDeletingDiagId] = useState(null);
+  const [editingTreatId, setEditingTreatId] = useState(null);
+  const [deletingTreatId, setDeletingTreatId] = useState(null);
 
   useEffect(() => {
     dispatch(fetchVisit(id));
@@ -72,19 +76,40 @@ export default function VisitDetailPage() {
     if (addDiagnosis.fulfilled.match(result)) setShowDiagForm(false);
   };
 
+  const handleUpdateDiagnosis = async (data) => {
+    const result = await dispatch(updateDiagnosis({ visitId: id, diagnosisId: editingDiagId, data }));
+    if (updateDiagnosis.fulfilled.match(result)) setEditingDiagId(null);
+  };
+
+  const handleDeleteDiagnosis = async () => {
+    const result = await dispatch(deleteDiagnosis({ visitId: id, diagnosisId: deletingDiagId }));
+    if (deleteDiagnosis.fulfilled.match(result)) setDeletingDiagId(null);
+  };
+
   const handleAddTreatment = async (data) => {
     const result = await dispatch(addTreatment({ visitId: id, data }));
     if (addTreatment.fulfilled.match(result)) setShowTreatForm(false);
   };
 
-  
+  const handleUpdateTreatment = async (data) => {
+    const result = await dispatch(updateTreatment({ visitId: id, treatmentId: editingTreatId, data }));
+    if (updateTreatment.fulfilled.match(result)) setEditingTreatId(null);
+  };
+
+  const handleDeleteTreatment = async () => {
+    const result = await dispatch(deleteTreatment({ visitId: id, treatmentId: deletingTreatId }));
+    if (deleteTreatment.fulfilled.match(result)) setDeletingTreatId(null);
+  };
+
   const toggleDiagForm = () => {
-    if (showDiagForm) dispatch(clearError());
+    dispatch(clearError());
+    setEditingDiagId(null);
     setShowDiagForm((v) => !v);
   };
 
   const toggleTreatForm = () => {
-    if (showTreatForm) dispatch(clearError());
+    dispatch(clearError());
+    setEditingTreatId(null);
     setShowTreatForm((v) => !v);
   };
 
@@ -216,9 +241,48 @@ export default function VisitDetailPage() {
           {diagnoses.length > 0 && (
             <ListGroup variant="flush" className="shadow-sm rounded">
               {diagnoses.map((d) => (
-                <ListGroup.Item key={d.id} className="py-3 px-4">
-                  <div className="fw-semibold mb-1">{d.description}</div>
-                  {d.notes && <div className="text-muted small">{d.notes}</div>}
+                <ListGroup.Item key={d.diagnosisId} className="py-3 px-4">
+                  {editingDiagId === d.diagnosisId ? (
+                    <DiagnosisForm
+                      initialValues={{
+                        diseaseName: d.diseaseName,
+                        description: d.description ?? '',
+                        severity: d.severity ?? '',
+                      }}
+                      onSubmit={handleUpdateDiagnosis}
+                      onCancel={() => { dispatch(clearError()); setEditingDiagId(null); }}
+                      isLoading={isLoading}
+                      error={error}
+                    />
+                  ) : (
+                    <div className="d-flex align-items-start justify-content-between gap-2">
+                      <div>
+                        <div className="d-flex align-items-center gap-2 mb-1">
+                          <span className="fw-semibold">{d.diseaseName}</span>
+                          {d.severity && (
+                            <span className="badge bg-secondary">{d.severity}</span>
+                          )}
+                        </div>
+                        {d.description && <div className="text-muted small">{d.description}</div>}
+                      </div>
+                      <div className="d-flex gap-1 flex-shrink-0">
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={() => { dispatch(clearError()); setShowDiagForm(false); setEditingDiagId(d.diagnosisId); }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => setDeletingDiagId(d.diagnosisId)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </ListGroup.Item>
               ))}
             </ListGroup>
@@ -257,12 +321,55 @@ export default function VisitDetailPage() {
           {treatments.length > 0 && (
             <ListGroup variant="flush" className="shadow-sm rounded">
               {treatments.map((t) => (
-                <ListGroup.Item key={t.id} className="py-3 px-4">
-                  <div className="fw-semibold mb-1">{t.name}</div>
-                  {t.description && (
-                    <div className="text-muted small mb-1">{t.description}</div>
+                <ListGroup.Item key={t.treatmentId} className="py-3 px-4">
+                  {editingTreatId === t.treatmentId ? (
+                    <TreatmentForm
+                      initialValues={{
+                        treatmentName: t.treatmentName,
+                        medication: t.medication ?? '',
+                        dosage: t.dosage ?? '',
+                        instructions: t.instructions ?? '',
+                        cost: t.cost ?? 0,
+                      }}
+                      onSubmit={handleUpdateTreatment}
+                      onCancel={() => { dispatch(clearError()); setEditingTreatId(null); }}
+                      isLoading={isLoading}
+                      error={error}
+                    />
+                  ) : (
+                    <div className="d-flex align-items-start justify-content-between gap-2">
+                      <div>
+                        <div className="d-flex align-items-center gap-2 mb-1">
+                          <span className="fw-semibold">{t.treatmentName}</span>
+                          {t.cost > 0 && (
+                            <span className="text-muted small">£{Number(t.cost).toFixed(2)}</span>
+                          )}
+                        </div>
+                        {(t.medication || t.dosage) && (
+                          <div className="text-muted small mb-1">
+                            {[t.medication, t.dosage].filter(Boolean).join(' — ')}
+                          </div>
+                        )}
+                        {t.instructions && <div className="text-muted small">{t.instructions}</div>}
+                      </div>
+                      <div className="d-flex gap-1 flex-shrink-0">
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={() => { dispatch(clearError()); setShowTreatForm(false); setEditingTreatId(t.treatmentId); }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => setDeletingTreatId(t.treatmentId)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
                   )}
-                  {t.notes && <div className="text-muted small">{t.notes}</div>}
                 </ListGroup.Item>
               ))}
             </ListGroup>
@@ -276,6 +383,24 @@ export default function VisitDetailPage() {
         body="Are you sure you want to delete this visit? This action cannot be undone."
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteModal(false)}
+        isLoading={isLoading}
+      />
+
+      <ConfirmModal
+        show={!!deletingDiagId}
+        title="Delete Diagnosis"
+        body="Are you sure you want to delete this diagnosis?"
+        onConfirm={handleDeleteDiagnosis}
+        onCancel={() => setDeletingDiagId(null)}
+        isLoading={isLoading}
+      />
+
+      <ConfirmModal
+        show={!!deletingTreatId}
+        title="Delete Treatment"
+        body="Are you sure you want to delete this treatment?"
+        onConfirm={handleDeleteTreatment}
+        onCancel={() => setDeletingTreatId(null)}
         isLoading={isLoading}
       />
     </Container>

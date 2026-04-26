@@ -1,64 +1,90 @@
-import { useState } from 'react';
-import { Form, Button, Alert } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
 
-const EMPTY = { description: '', notes: '' };
+const EMPTY = { diseaseName: '', description: '', severity: '' };
 
-export default function DiagnosisForm({ onSubmit, onCancel, isLoading, error }) {
-  const [values, setValues] = useState(EMPTY);
-  const [validationError, setValidationError] = useState('');
+const SEVERITIES = ['', 'Low', 'Moderate', 'High', 'Critical'];
+
+export default function DiagnosisForm({ initialValues, onSubmit, onCancel, isLoading, error }) {
+  const [values, setValues] = useState(initialValues ?? EMPTY);
+  const [validationErrors, setValidationErrors] = useState({});
+
+  useEffect(() => {
+    setValues(initialValues ?? EMPTY);
+    setValidationErrors({});
+  }, [initialValues]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setValues((v) => ({ ...v, [name]: value }));
-    if (name === 'description' && value.trim()) setValidationError('');
+    if (validationErrors[name] && value.trim()) {
+      setValidationErrors((prev) => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!values.description.trim()) {
-      setValidationError('Description is required.');
+    const errors = {};
+    if (!values.diseaseName.trim()) errors.diseaseName = 'Disease Name is required.';
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
       return;
     }
     onSubmit(values);
     setValues(EMPTY);
-    setValidationError('');
+    setValidationErrors({});
   };
-
-  const displayError = validationError || error;
 
   return (
     <Form onSubmit={handleSubmit} noValidate>
-      {displayError && <Alert variant="danger" className="py-2">{displayError}</Alert>}
+      {error && <Alert variant="danger" className="py-2">{error}</Alert>}
 
-      <Form.Group controlId="diagDescription" className="mb-3">
-        <Form.Label>Description</Form.Label>
-        <Form.Control
-          name="description"
-          value={values.description}
-          onChange={handleChange}
-          placeholder="e.g. Respiratory infection"
-          isInvalid={!!validationError}
-        />
-        <Form.Control.Feedback type="invalid">
-          {validationError}
-        </Form.Control.Feedback>
-      </Form.Group>
+      <Row className="g-3">
+        <Col sm={12}>
+          <Form.Group controlId="diagDiseaseName">
+            <Form.Label>Disease Name</Form.Label>
+            <Form.Control
+              name="diseaseName"
+              value={values.diseaseName}
+              onChange={handleChange}
+              placeholder="e.g. Respiratory infection"
+              isInvalid={!!validationErrors.diseaseName}
+            />
+            <Form.Control.Feedback type="invalid">
+              {validationErrors.diseaseName}
+            </Form.Control.Feedback>
+          </Form.Group>
+        </Col>
 
-      <Form.Group controlId="diagNotes" className="mb-3">
-        <Form.Label>Notes <span className="text-muted fw-normal">(optional)</span></Form.Label>
-        <Form.Control
-          as="textarea"
-          rows={2}
-          name="notes"
-          value={values.notes}
-          onChange={handleChange}
-          placeholder="Additional details…"
-        />
-      </Form.Group>
+        <Col sm={8}>
+          <Form.Group controlId="diagDescription">
+            <Form.Label>Description <span className="text-muted fw-normal">(optional)</span></Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={2}
+              name="description"
+              value={values.description}
+              onChange={handleChange}
+              placeholder="Additional details about the diagnosis…"
+            />
+          </Form.Group>
+        </Col>
 
-      <div className="d-flex gap-2">
+        <Col sm={4}>
+          <Form.Group controlId="diagSeverity">
+            <Form.Label>Severity <span className="text-muted fw-normal">(optional)</span></Form.Label>
+            <Form.Select name="severity" value={values.severity} onChange={handleChange}>
+              {SEVERITIES.map((s) => (
+                <option key={s} value={s}>{s || '— None —'}</option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        </Col>
+      </Row>
+
+      <div className="d-flex gap-2 mt-3">
         <Button type="submit" variant="primary" size="sm" disabled={isLoading}>
-          {isLoading ? 'Adding…' : 'Add Diagnosis'}
+          {isLoading ? 'Saving…' : initialValues ? 'Update Diagnosis' : 'Add Diagnosis'}
         </Button>
         {onCancel && (
           <Button type="button" variant="outline-secondary" size="sm" onClick={onCancel} disabled={isLoading}>
